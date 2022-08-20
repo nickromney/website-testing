@@ -32,7 +32,7 @@ smoke_form() {
         exit 1
     fi
 
-    _curl_post $URL $FORMDATA
+    _curl_post "$URL" "$FORMDATA"
 }
 
 smoke_form_ok() {
@@ -53,27 +53,27 @@ smoke_report() {
 }
 
 smoke_response_code() {
-    cat $SMOKE_CURL_CODE
+    cat "$SMOKE_CURL_CODE"
 }
 
 smoke_response_body() {
-    cat $SMOKE_CURL_BODY
+    cat "$SMOKE_CURL_BODY"
 }
 
 smoke_response_headers() {
-    cat $SMOKE_CURL_HEADERS
+    cat "$SMOKE_CURL_HEADERS"
 }
 
 smoke_tcp_ok() {
     URL="$1 $2"
     _smoke_print_url "$URL"
-    echo EOF | telnet $URL > $SMOKE_CURL_BODY
+    echo EOF | telnet "$URL" > "$SMOKE_CURL_BODY"
     smoke_assert_body "Connected"
 }
 
 smoke_url() {
     URL="$1"
-    _curl_get $URL
+    _curl_get "$URL"
 }
 
 smoke_url_ok() {
@@ -102,7 +102,7 @@ remove_smoke_headers() {
 
 smoke_assert_code() {
     EXPECTED="$1"
-    CODE=$(cat $SMOKE_CURL_CODE)
+    CODE=$(cat "$SMOKE_CURL_CODE")
 
     if [[ $CODE == $1 ]]; then
         _smoke_success "$1 Response code"
@@ -112,7 +112,7 @@ smoke_assert_code() {
 }
 
 smoke_assert_code_ok() {
-    CODE=$(cat $SMOKE_CURL_CODE)
+    CODE=$(cat "$SMOKE_CURL_CODE")
 
     if [[ $CODE == 2* ]]; then
         _smoke_success "2xx Response code"
@@ -152,7 +152,7 @@ _smoke_after_response() {
 }
 
 _smoke_cleanup() {
-    rm -rf $SMOKE_TMP_DIR
+    rm -rf "$SMOKE_TMP_DIR"
 }
 
 _smoke_fail() {
@@ -166,10 +166,10 @@ _smoke_prepare_formdata() {
     FORMDATA="$1"
 
     if [[ "" != $SMOKE_CSRF_TOKEN ]]; then
-        cat $FORMDATA | sed "s/__SMOKE_CSRF_TOKEN__/$SMOKE_CSRF_TOKEN/" > $SMOKE_CSRF_FORM_DATA
-        echo $SMOKE_CSRF_FORM_DATA
+        cat "$FORMDATA" | sed "s/__SMOKE_CSRF_TOKEN__/$SMOKE_CSRF_TOKEN/" > "$SMOKE_CSRF_FORM_DATA"
+        echo "$SMOKE_CSRF_FORM_DATA"
     else
-        echo $FORMDATA
+        echo "$FORMDATA"
     fi
 }
 
@@ -190,7 +190,7 @@ _curl() {
     done
   fi
 
-  curl "${opt[@]}" "$@" > $SMOKE_CURL_BODY
+  curl "${opt[@]}" "$@" > "$SMOKE_CURL_BODY"
 }
 
 _curl_get() {
@@ -199,9 +199,9 @@ _curl_get() {
     SMOKE_URL="$SMOKE_URL_PREFIX$URL"
     _smoke_print_url "$SMOKE_URL"
 
-    _curl $SMOKE_URL
+    _curl "$SMOKE_URL"
 
-    grep -oE 'HTTP[^ ]+ [0-9]{3}' $SMOKE_CURL_HEADERS | tail -n1 | grep -oE '[0-9]{3}' > $SMOKE_CURL_CODE
+    grep -oE 'HTTP[^ ]+ [0-9]{3}' "$SMOKE_CURL_HEADERS" | tail -n1 | grep -oE '[0-9]{3}' > "$SMOKE_CURL_CODE"
 
     $SMOKE_AFTER_RESPONSE
 }
@@ -209,14 +209,14 @@ _curl_get() {
 _curl_post() {
     URL="$1"
     FORMDATA="$2"
-    FORMDATA_FILE="@"$(_smoke_prepare_formdata $FORMDATA)
+    FORMDATA_FILE="@"$(_smoke_prepare_formdata "$FORMDATA")
 
     SMOKE_URL="$SMOKE_URL_PREFIX$URL"
     _smoke_print_url "$SMOKE_URL"
 
-    _curl --data "$FORMDATA_FILE" $SMOKE_URL
+    _curl --data "$FORMDATA_FILE" "$SMOKE_URL"
 
-    grep -oE 'HTTP[^ ]+ [0-9]{3}' $SMOKE_CURL_HEADERS | tail -n1 | grep -oE '[0-9]{3}' > $SMOKE_CURL_CODE
+    grep -oE 'HTTP[^ ]+ [0-9]{3}' "$SMOKE_CURL_HEADERS" | tail -n1 | grep -oE '[0-9]{3}' > "$SMOKE_CURL_CODE"
 
     $SMOKE_AFTER_RESPONSE
 }
@@ -227,7 +227,7 @@ _curl_post() {
 # http://unix.stackexchange.com/questions/9957/how-to-check-if-bash-can-print-colors
 if [ -t 1 ]; then
     ncolors=$(tput colors)
-    if test -n "$ncolors" && test $ncolors -ge 8; then
+    if test -n "$ncolors" && test "$ncolors" -ge 8; then
         bold="$(tput bold)"
         normal="$(tput sgr0)"
         red="$(tput setaf 1)"
