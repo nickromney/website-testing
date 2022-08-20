@@ -181,7 +181,7 @@ _smoke_success() {
 
 ## Curl helpers
 _curl() {
-  local opt=(--cookie $SMOKE_CURL_COOKIE_JAR --cookie-jar $SMOKE_CURL_COOKIE_JAR --location --dump-header $SMOKE_CURL_HEADERS --silent)
+  local opt=(--cookie "$SMOKE_CURL_COOKIE_JAR" --cookie-jar "$SMOKE_CURL_COOKIE_JAR" --location --dump-header "$SMOKE_CURL_HEADERS" --silent)
 
   if (( ${#SMOKE_HEADERS[@]} )); then
     for header in "${SMOKE_HEADERS[@]}"
