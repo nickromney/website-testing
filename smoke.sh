@@ -130,6 +130,16 @@ smoke_assert_body() {
     fi
 }
 
+smoke_assert_body_not_contains() {
+    STRING="$1"
+
+    if smoke_response_body | grep --quiet "$STRING"; then
+        _smoke_fail "(Assert absence of string): Body contains \"$STRING\""
+    else
+        _smoke_success "(Assert absence of string): Body does not contain \"$STRING\""
+    fi
+}
+
 smoke_assert_headers() {
     STRING="$1"
 

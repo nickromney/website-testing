@@ -102,6 +102,15 @@ serving the apache default page:
 smoke_assert_body "Password *"
 ```
 
+### Checking if the response body does not contain a certain string
+
+By checking if the response body has the absence of certain strings
+you can rule out whether e.g. a 404-type page is being served
+
+```bash
+smoke_assert_body_not_contains "Sorry, this page doesn't exist!"
+```
+
 ### Checking if the response headers contain a certain string
 
 By checking response headers, you can make sure to get the correct content type:
