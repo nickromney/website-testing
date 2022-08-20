@@ -104,7 +104,7 @@ smoke_assert_code() {
     EXPECTED="$1"
     CODE=$(cat "$SMOKE_CURL_CODE")
 
-    if [[ $CODE == $1 ]]; then
+    if [[ $CODE == "$1" ]]; then
         _smoke_success "$1 Response code"
     else
         _smoke_fail "$1 Response code"
@@ -165,7 +165,7 @@ _smoke_fail() {
 _smoke_prepare_formdata() {
     FORMDATA="$1"
 
-    if [[ "" != $SMOKE_CSRF_TOKEN ]]; then
+    if [[ "" != "$SMOKE_CSRF_TOKEN" ]]; then
         cat "$FORMDATA" | sed "s/__SMOKE_CSRF_TOKEN__/$SMOKE_CSRF_TOKEN/" > "$SMOKE_CSRF_FORM_DATA"
         echo "$SMOKE_CSRF_FORM_DATA"
     else
