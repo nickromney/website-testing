@@ -101,7 +101,6 @@ remove_smoke_headers() {
 ## Assertions
 
 smoke_assert_code() {
-    EXPECTED="$1"
     CODE=$(cat "$SMOKE_CURL_CODE")
 
     if [[ $CODE == "$1" ]]; then
