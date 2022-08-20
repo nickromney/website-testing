@@ -162,7 +162,7 @@ _smoke_prepare_formdata() {
     FORMDATA="$1"
 
     if [[ "" != "$SMOKE_CSRF_TOKEN" ]]; then
-        cat "$FORMDATA" | sed "s/__SMOKE_CSRF_TOKEN__/$SMOKE_CSRF_TOKEN/" > "$SMOKE_CSRF_FORM_DATA"
+        < "$FORMDATA" sed "s/__SMOKE_CSRF_TOKEN__/$SMOKE_CSRF_TOKEN/" > "$SMOKE_CSRF_FORM_DATA"
         echo "$SMOKE_CSRF_FORM_DATA"
     else
         echo "$FORMDATA"
