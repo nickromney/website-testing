@@ -11,6 +11,9 @@ SMOKE_CURL_COOKIE_JAR="$SMOKE_TMP_DIR/smoke_curl_cookie_jar"
 SMOKE_CSRF_TOKEN=""
 SMOKE_CSRF_FORM_DATA="$SMOKE_TMP_DIR/smoke_csrf_form_data"
 
+SMOKE_DIG_GLOBAL_SERVER="8.8.8.8"
+SMOKE_DIG_RESULTS="$SMOKE_TMP_DIR/smoke_dig_results"
+
 SMOKE_TESTS_FAILED=0
 SMOKE_TESTS_RUN=0
 SMOKE_URL_PREFIX=""
@@ -35,6 +38,13 @@ smoke_form() {
     _curl_post "$URL" "$FORMDATA"
 }
 
+smoke_dig_domain() {
+    DOMAIN="$1"
+    SMOKE_DIG_Q_TYPE="$2"
+
+    _dig_domain "$DOMAIN" "$SMOKE_DIG_Q_TYPE"
+}
+
 smoke_form_ok() {
     URL="$1"
     FORMDATA="$2"
@@ -54,6 +64,10 @@ smoke_report() {
 
 smoke_response_code() {
     cat "$SMOKE_CURL_CODE"
+}
+
+smoke_response_dig() {
+    cat "$SMOKE_DIG_RESULTS"
 }
 
 smoke_response_body() {
@@ -100,6 +114,26 @@ remove_smoke_headers() {
 
 ## Assertions
 
+smoke_assert_body() {
+    STRING="$1"
+
+    if smoke_response_body | grep --quiet "$STRING"; then
+        _smoke_success "Body contains \"$STRING\""
+    else
+        _smoke_fail "Body does not contain \"$STRING\""
+    fi
+}
+
+smoke_assert_body_absent() {
+    STRING="$1"
+
+    if smoke_response_body | grep --quiet "$STRING"; then
+        _smoke_fail "(Assert absence of string): Body contains \"$STRING\""
+    else
+        _smoke_success "(Assert absence of string): Body does not contain \"$STRING\""
+    fi
+}
+
 smoke_assert_code() {
     CODE=$(cat "$SMOKE_CURL_CODE")
 
@@ -120,23 +154,25 @@ smoke_assert_code_ok() {
     fi
 }
 
-smoke_assert_body() {
+smoke_assert_dig() {
     STRING="$1"
 
-    if smoke_response_body | grep --quiet "$STRING"; then
-        _smoke_success "Body contains \"$STRING\""
+    if smoke_response_dig | grep --quiet "$STRING"; then
+        _smoke_success "Dig results contain $STRING"
     else
-        _smoke_fail "Body does not contain \"$STRING\""
+        _smoke_fail "(Assert presence of string): Dig results do not contain $STRING"
+        smoke_response_dig
     fi
 }
 
-smoke_assert_body_not_contains() {
+smoke_assert_dig_absent() {
     STRING="$1"
 
-    if smoke_response_body | grep --quiet "$STRING"; then
-        _smoke_fail "(Assert absence of string): Body contains \"$STRING\""
+    if smoke_response_dig | grep --quiet "$STRING"; then
+        _smoke_fail "(Assert absence of string): Dig results contain $STRING"
+        smoke_response_dig
     else
-        _smoke_success "(Assert absence of string): Body does not contain \"$STRING\""
+        _smoke_success "(Assert absence of string): Dig results do not contain $STRING"
     fi
 }
 
@@ -222,6 +258,18 @@ _curl_post() {
     _curl --data "$FORMDATA_FILE" "$SMOKE_URL"
 
     grep -oE 'HTTP[^ ]+ [0-9]{3}' "$SMOKE_CURL_HEADERS" | tail -n1 | grep -oE '[0-9]{3}' > "$SMOKE_CURL_CODE"
+
+    $SMOKE_AFTER_RESPONSE
+}
+
+## Dig helpers
+_dig_domain() {
+    DOMAIN="$1"
+    SMOKE_DIG_Q_TYPE="$2"
+
+    _smoke_print_url "$DOMAIN"
+
+    dig @"$SMOKE_DIG_GLOBAL_SERVER" "$DOMAIN" "$SMOKE_DIG_Q_TYPE" +short > "$SMOKE_DIG_RESULTS"
 
     $SMOKE_AFTER_RESPONSE
 }

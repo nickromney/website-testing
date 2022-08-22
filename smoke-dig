@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# shellcheck source=smoke.sh
+source smoke.sh
+
+# https://www.networkworld.com/article/3527430/digging-up-ip-addresses-with-the-dig-command.html
+# is an excellent article about using the dig tool
+# networkworld.com looks like it returns 4 IP addresses
+# we assert that two IP addresses should usually be present (depending on load balancing)
+# "1.2.3.4" is expected to be absent
+smoke_dig_domain "networkworld.com" a
+    smoke_assert_dig "151.101.66.165"
+    smoke_assert_dig "151.101.194.165"
+    smoke_assert_dig_absent "1.2.3.4"
+
+# Here we change to query for nameserver records
+# Again we assert that two should be present, and one absent
+# This approach could be used during the migration of nameservers
+smoke_dig_domain "networkworld.com" ns
+    smoke_assert_dig "ns-a.pnap.net."
+    smoke_assert_dig "ns-b.pnap.net."
+    smoke_assert_dig_absent "sullivan.ns.cloudflare.com."
+smoke_report

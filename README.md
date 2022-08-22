@@ -102,13 +102,13 @@ serving the apache default page:
 smoke_assert_body "Password *"
 ```
 
-### Checking if the response body does not contain a certain string
+### Checking if the response body does NOT contain a certain string
 
 By checking if the response body has the absence of certain strings
 you can rule out whether e.g. a 404-type page is being served
 
 ```bash
-smoke_assert_body_not_contains "Sorry, this page doesn't exist!"
+smoke_assert_body_absent "Sorry, this page doesn't exist!"
 ```
 
 ### Checking if the response headers contain a certain string
@@ -238,22 +238,26 @@ smoke_report
 API
 ---
 
-| function                        | description                                          |
-|---------------------------------|------------------------------------------------------|
-|`smoke_assert_body <string>`     | assert that the body contains `<string>`             |
-|`smoke_assert_code <code>`       | assert that there was a `<code>` response code       |
-|`smoke_assert_code_ok`           | assert that there was a `2xx` response code          |
-|`smoke_assert_headers <string>`  | assert that the headers contain `<string>`           |
-|`smoke_csrf <token>`             | set the csrf token to use in POST requests           |
-|`smoke_form <url> <datafile>`    | POST data on url                                     |
-|`smoke_form_ok <url> <datafile>` | POST data on url and check for a `2xx` response code |
-|`smoke_report`                   | prints the report and exits                          |
-|`smoke_response_body`            | body of the last response                            |
-|`smoke_response_code`            | code of the last response                            |
-|`smoke_response_headers`         | headers of the last response                         |
-|`smoke_url <url>`                | GET a url                                            |
-|`smoke_url_ok <url>`             | GET a url and check for a `2xx` response code        |
-|`smoke_url_prefix <prefix>`      | set the prefix to use for every url (e.g. domain)    |
-|`smoke_host <host>`              | set the host header to use                           |
-|`smoke_header <header>`          | set additional request header                        |
-|`smoke_tcp_ok <host> <port>`     | open a tcp connection and check for a `Connected` response |
+| function                                 | description                                                |
+|------------------------------------------|------------------------------------------------------------|
+|`smoke_assert_body <string>`              | assert that the body contains `<string>`                   |
+|`smoke_assert_body_absent <string>`       | assert that the body does NOT contain `<string>`           |
+|`smoke_assert_code <code>`                | assert that there was a `<code>` response code             |
+|`smoke_assert_code_ok`                    | assert that there was a `2xx` response code                |
+|`smoke_assert_dig <string>`               | assert that the body contains `<string>`                   |
+|`smoke_assert_dig_absent <string>`        | assert that the body does NOT contain `<string>`           |
+|`smoke_assert_headers <string>`           | assert that the headers contain `<string>`                 |
+|`smoke_csrf <token>`                      | set the csrf token to use in POST requests                 |
+|`smoke_dig_domain <domain> <record-type>` | query dig for `<record-type>` against `<domain>`           |
+|`smoke_form <url> <datafile>`             | POST data on url                                           |
+|`smoke_form_ok <url> <datafile>`          | POST data on url and check for a `2xx` response code       |
+|`smoke_header <header>`                   | set additional request header                              |
+|`smoke_host <host>`                       | set the host header to use                                 |
+|`smoke_report`                            | prints the report and exits                                |
+|`smoke_response_body`                     | body of the last response                                  |
+|`smoke_response_code`                     | code of the last response                                  |
+|`smoke_response_headers`                  | headers of the last response                               |
+|`smoke_tcp_ok <host> <port>`              | open a tcp connection and check for a `Connected` response |
+|`smoke_url <url>`                         | GET a url                                                  |
+|`smoke_url_ok <url>`                      | GET a url and check for a `2xx` response code              |
+|`smoke_url_prefix <prefix>`               | set the prefix to use for every url (e.g. domain)          |
