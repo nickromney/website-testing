@@ -158,9 +158,9 @@ smoke_assert_dig() {
     STRING="$1"
 
     if smoke_response_dig | grep --quiet "$STRING"; then
-        _smoke_success "Dig results contain $STRING"
+        _smoke_success "Dig results contain \"$STRING\""
     else
-        _smoke_fail "(Assert presence of string): Dig results do not contain $STRING"
+        _smoke_fail "(Assert presence of string): Dig results do not contain \"$STRING\""
         smoke_response_dig
     fi
 }
@@ -169,10 +169,10 @@ smoke_assert_dig_absent() {
     STRING="$1"
 
     if smoke_response_dig | grep --quiet "$STRING"; then
-        _smoke_fail "(Assert absence of string): Dig results contain $STRING"
+        _smoke_fail "(Assert absence of string): Dig results contain \"$STRING\""
         smoke_response_dig
     else
-        _smoke_success "(Assert absence of string): Dig results do not contain $STRING"
+        _smoke_success "(Assert absence of string): Dig results do not contain \"$STRING\""
     fi
 }
 
