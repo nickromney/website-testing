@@ -14,15 +14,26 @@ SMOKE_CSRF_FORM_DATA="$SMOKE_TMP_DIR/smoke_csrf_form_data"
 SMOKE_DIG_GLOBAL_SERVER="8.8.8.8"
 SMOKE_DIG_RESULTS="$SMOKE_TMP_DIR/smoke_dig_results"
 
+SMOKE_HEADERS=()
 SMOKE_TESTS_FAILED=0
 SMOKE_TESTS_RUN=0
 SMOKE_URL_PREFIX=""
-SMOKE_HEADERS=()
 
 ## "Public API"
 
+remove_smoke_headers() {
+    unset SMOKE_HEADERS
+}
+
 smoke_csrf() {
     SMOKE_CSRF_TOKEN="$1"
+}
+
+smoke_dig_domain() {
+    DOMAIN="$1"
+    SMOKE_DIG_Q_TYPE="$2"
+
+    _dig_domain "$DOMAIN" "$SMOKE_DIG_Q_TYPE"
 }
 
 smoke_form() {
@@ -38,19 +49,20 @@ smoke_form() {
     _curl_post "$URL" "$FORMDATA"
 }
 
-smoke_dig_domain() {
-    DOMAIN="$1"
-    SMOKE_DIG_Q_TYPE="$2"
-
-    _dig_domain "$DOMAIN" "$SMOKE_DIG_Q_TYPE"
-}
-
 smoke_form_ok() {
     URL="$1"
     FORMDATA="$2"
 
     smoke_form "$URL" "$FORMDATA"
     smoke_assert_code_ok
+}
+
+smoke_header() {
+    SMOKE_HEADERS+=("$1")
+}
+
+smoke_host() {
+    smoke_header "Host: $1"
 }
 
 smoke_report() {
@@ -62,16 +74,16 @@ smoke_report() {
     _smoke_print_report_success "OK ($SMOKE_TESTS_RUN/$SMOKE_TESTS_RUN)"
 }
 
+smoke_response_body() {
+    cat "$SMOKE_CURL_BODY"
+}
+
 smoke_response_code() {
     cat "$SMOKE_CURL_CODE"
 }
 
 smoke_response_dig() {
     cat "$SMOKE_DIG_RESULTS"
-}
-
-smoke_response_body() {
-    cat "$SMOKE_CURL_BODY"
 }
 
 smoke_response_headers() {
@@ -98,18 +110,6 @@ smoke_url_ok() {
 
 smoke_url_prefix() {
     SMOKE_URL_PREFIX="$1"
-}
-
-smoke_header() {
-    SMOKE_HEADERS+=("$1")
-}
-
-smoke_host() {
-    smoke_header "Host: $1"
-}
-
-remove_smoke_headers() {
-    unset SMOKE_HEADERS
 }
 
 ## Assertions
@@ -299,6 +299,7 @@ _smoke_print_report_failure() {
     TEXT="$1"
     echo -e "${redbg}$TEXT${normal}"
 }
+
 _smoke_print_report_success() {
     TEXT="$1"
     echo -e "${greenbg}$TEXT${normal}"
