@@ -11,10 +11,14 @@ SMOKE_CURL_COOKIE_JAR="$SMOKE_TMP_DIR/smoke_curl_cookie_jar"
 SMOKE_CSRF_TOKEN=""
 SMOKE_CSRF_FORM_DATA="$SMOKE_TMP_DIR/smoke_csrf_form_data"
 
-SMOKE_DIG_GLOBAL_SERVER="8.8.8.8"
+#SMOKE_DIG_GLOBAL_SERVER="8.8.8.8"
+SMOKE_DIG_GLOBAL_SERVER="8.8.4.4"
+#SMOKE_DIG_GLOBAL_SERVER="1.1.1.1"
 SMOKE_DIG_RESULTS="$SMOKE_TMP_DIR/smoke_dig_results"
 
 SMOKE_HEADERS=()
+SMOKE_SSL_EXPIRY="$SMOKE_TMP_DIR/smoke_ssl_expiry"
+SMOKE_SSL_EXPIRY_ALERT_DAYS=35
 SMOKE_TESTS_FAILED=0
 SMOKE_TESTS_RUN=0
 SMOKE_URL_PREFIX=""
@@ -88,6 +92,15 @@ smoke_response_dig() {
 
 smoke_response_headers() {
     cat "$SMOKE_CURL_HEADERS"
+}
+
+smoke_response_ssl_expiry() {
+    cat "$SMOKE_SSL_EXPIRY"
+}
+
+smoke_ssl_expiry() {
+    DOMAIN="$1"
+    _ssl_expiry "$DOMAIN"
 }
 
 smoke_tcp_ok() {
@@ -173,6 +186,20 @@ smoke_assert_dig_absent() {
         smoke_response_dig
     else
         _smoke_success "(Assert absence of string): Dig results do not contain \"$STRING\""
+    fi
+}
+
+smoke_assert_ssl_expiry() {
+    EXPIRY=$(smoke_response_ssl_expiry)
+	EXPIRY_SIMPLE=$( date -d "$EXPIRY" +%F )
+	EXPIRY_SEC=$(date -d "$EXPIRY" +%s)
+	TODAY_SEC=$(date +%s)
+	EXPIRY_CALC=$(echo "($EXPIRY_SEC-$TODAY_SEC)/86400" | bc )
+	# Output
+	if [ "$EXPIRY_CALC" -gt "$SMOKE_SSL_EXPIRY_ALERT_DAYS" ] ; then
+        _smoke_success "$EXPIRY_SIMPLE - $DOMAIN certificate valid for $EXPIRY_CALC days"
+    else
+        _smoke_fail "$EXPIRY_SIMPLE - $DOMAIN certificate expires in $EXPIRY_CALC days."
     fi
 }
 
@@ -272,6 +299,13 @@ _dig_domain() {
     dig @"$SMOKE_DIG_GLOBAL_SERVER" "$DOMAIN" "$SMOKE_DIG_Q_TYPE" +short > "$SMOKE_DIG_RESULTS"
 
     $SMOKE_AFTER_RESPONSE
+}
+
+## SSL helpers
+_ssl_expiry() {
+    DOMAIN="$1"
+    _smoke_print_url "$DOMAIN"
+	echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN":443 2>/dev/null | openssl x509 -noout -dates | grep notAfter | sed 's/notAfter=//' > "$SMOKE_SSL_EXPIRY"
 }
 
 ## Print helpers

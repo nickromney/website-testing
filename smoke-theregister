@@ -6,9 +6,9 @@ source smoke.sh
 smoke_url_prefix "https://www.theregister.com"
 smoke_url_ok "/"
 smoke_url_ok "/security"
-    smoke_assert_body "Independent news and views for the tech community"
+    smoke_assert_body "Oh no, you're thinking, yet another cookie pop-up."
     smoke_assert_body_absent "Sorry, this page doesn't exist!"
-smoke_url_ok "/2022/08/18/non-existent"
-    smoke_assert_body "Independent news and views for the tech community"
-    smoke_assert_body_absent "Sorry, this page doesn't exist!"
+smoke_url "/2022/08/18/non-existent"
+    smoke_assert_code 404
+    smoke_assert_body "Sorry, this page doesn't exist!"
 smoke_report
