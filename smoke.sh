@@ -11,18 +11,33 @@ SMOKE_CURL_COOKIE_JAR="$SMOKE_TMP_DIR/smoke_curl_cookie_jar"
 SMOKE_CSRF_TOKEN=""
 SMOKE_CSRF_FORM_DATA="$SMOKE_TMP_DIR/smoke_csrf_form_data"
 
-SMOKE_DIG_GLOBAL_SERVER="8.8.8.8"
+#SMOKE_DIG_GLOBAL_SERVER="8.8.8.8"
+SMOKE_DIG_GLOBAL_SERVER="8.8.4.4"
+#SMOKE_DIG_GLOBAL_SERVER="1.1.1.1"
 SMOKE_DIG_RESULTS="$SMOKE_TMP_DIR/smoke_dig_results"
 
+SMOKE_HEADERS=()
+SMOKE_SSL_EXPIRY="$SMOKE_TMP_DIR/smoke_ssl_expiry"
+SMOKE_SSL_EXPIRY_ALERT_DAYS=35
 SMOKE_TESTS_FAILED=0
 SMOKE_TESTS_RUN=0
 SMOKE_URL_PREFIX=""
-SMOKE_HEADERS=()
 
 ## "Public API"
 
+remove_smoke_headers() {
+    unset SMOKE_HEADERS
+}
+
 smoke_csrf() {
     SMOKE_CSRF_TOKEN="$1"
+}
+
+smoke_dig_domain() {
+    DOMAIN="$1"
+    SMOKE_DIG_Q_TYPE="$2"
+
+    _dig_domain "$DOMAIN" "$SMOKE_DIG_Q_TYPE"
 }
 
 smoke_form() {
@@ -38,19 +53,20 @@ smoke_form() {
     _curl_post "$URL" "$FORMDATA"
 }
 
-smoke_dig_domain() {
-    DOMAIN="$1"
-    SMOKE_DIG_Q_TYPE="$2"
-
-    _dig_domain "$DOMAIN" "$SMOKE_DIG_Q_TYPE"
-}
-
 smoke_form_ok() {
     URL="$1"
     FORMDATA="$2"
 
     smoke_form "$URL" "$FORMDATA"
     smoke_assert_code_ok
+}
+
+smoke_header() {
+    SMOKE_HEADERS+=("$1")
+}
+
+smoke_host() {
+    smoke_header "Host: $1"
 }
 
 smoke_report() {
@@ -62,6 +78,10 @@ smoke_report() {
     _smoke_print_report_success "OK ($SMOKE_TESTS_RUN/$SMOKE_TESTS_RUN)"
 }
 
+smoke_response_body() {
+    cat "$SMOKE_CURL_BODY"
+}
+
 smoke_response_code() {
     cat "$SMOKE_CURL_CODE"
 }
@@ -70,12 +90,17 @@ smoke_response_dig() {
     cat "$SMOKE_DIG_RESULTS"
 }
 
-smoke_response_body() {
-    cat "$SMOKE_CURL_BODY"
-}
-
 smoke_response_headers() {
     cat "$SMOKE_CURL_HEADERS"
+}
+
+smoke_response_ssl_expiry() {
+    cat "$SMOKE_SSL_EXPIRY"
+}
+
+smoke_ssl_expiry() {
+    DOMAIN="$1"
+    _ssl_expiry "$DOMAIN"
 }
 
 smoke_tcp_ok() {
@@ -98,18 +123,6 @@ smoke_url_ok() {
 
 smoke_url_prefix() {
     SMOKE_URL_PREFIX="$1"
-}
-
-smoke_header() {
-    SMOKE_HEADERS+=("$1")
-}
-
-smoke_host() {
-    smoke_header "Host: $1"
-}
-
-remove_smoke_headers() {
-    unset SMOKE_HEADERS
 }
 
 ## Assertions
@@ -173,6 +186,20 @@ smoke_assert_dig_absent() {
         smoke_response_dig
     else
         _smoke_success "(Assert absence of string): Dig results do not contain \"$STRING\""
+    fi
+}
+
+smoke_assert_ssl_expiry() {
+    EXPIRY=$(smoke_response_ssl_expiry)
+	EXPIRY_SIMPLE=$( date -d "$EXPIRY" +%F )
+	EXPIRY_SEC=$(date -d "$EXPIRY" +%s)
+	TODAY_SEC=$(date +%s)
+	EXPIRY_CALC=$(echo "($EXPIRY_SEC-$TODAY_SEC)/86400" | bc )
+	# Output
+	if [ "$EXPIRY_CALC" -gt "$SMOKE_SSL_EXPIRY_ALERT_DAYS" ] ; then
+        _smoke_success "$EXPIRY_SIMPLE - $DOMAIN certificate valid for $EXPIRY_CALC days"
+    else
+        _smoke_fail "$EXPIRY_SIMPLE - $DOMAIN certificate expires in $EXPIRY_CALC days."
     fi
 }
 
@@ -274,6 +301,13 @@ _dig_domain() {
     $SMOKE_AFTER_RESPONSE
 }
 
+## SSL helpers
+_ssl_expiry() {
+    DOMAIN="$1"
+    _smoke_print_url "$DOMAIN"
+	echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN":443 2>/dev/null | openssl x509 -noout -dates | grep notAfter | sed 's/notAfter=//' > "$SMOKE_SSL_EXPIRY"
+}
+
 ## Print helpers
 
 # test for color support, inspired by:
@@ -299,6 +333,7 @@ _smoke_print_report_failure() {
     TEXT="$1"
     echo -e "${redbg}$TEXT${normal}"
 }
+
 _smoke_print_report_success() {
     TEXT="$1"
     echo -e "${greenbg}$TEXT${normal}"

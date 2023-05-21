@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# shellcheck source=smoke.sh
+source smoke.sh
+
+# This can be used for some basic checking of SSL expiry.
+# Much fuller testing is available from [testssl.sh](https://github.com/drwetter/testssl.sh)
+# Test if the certificate expires in less than SMOKE_SSL_EXPIRY_ALERT_DAYS days.
+smoke_ssl_expiry "networkworld.com"
+    smoke_assert_ssl_expiry
+smoke_report
