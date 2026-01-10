@@ -21,6 +21,13 @@ EOF
   chmod +x "$MOCK_BIN_DIR/$cmd"
 }
 
+mock_passthrough_command() {
+  local cmd="$1"
+  local target="$2"
+
+  mock_command_with_script "$cmd" "exec \"$target\" \"\$@\""
+}
+
 assert_mock_called() {
   local cmd="$1"
   local expected_args="${2:-}"
@@ -37,6 +44,17 @@ assert_mock_called() {
       cat "$MOCK_CALLS_DIR/$cmd.calls" >&2
       return 1
     fi
+  fi
+}
+
+assert_mock_not_called() {
+  local cmd="$1"
+
+  if [[ -f "$MOCK_CALLS_DIR/$cmd.calls" ]]; then
+    echo "Mock command '$cmd' was called but should not have been" >&2
+    echo "Calls:" >&2
+    cat "$MOCK_CALLS_DIR/$cmd.calls" >&2
+    return 1
   fi
 }
 

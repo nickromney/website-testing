@@ -8,7 +8,12 @@ on:
 
 jobs:
   lint-and-test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,11 +23,25 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.1
 
       - name: Install bats
+        if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y bats
+
+      - name: Install bats (macOS)
+        if: runner.os == 'macOS'
+        run: brew install bats-core
 
       - name: Run tests
         run: bats -r _test
+
+      - name: Go tests
+        if: ${{ hashFiles('go.mod') != '' }}
+        run: go test ./...

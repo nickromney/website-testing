@@ -68,6 +68,18 @@ printf '%s\n' \"$output\"
 "
 }
 
+make_nc_mock() {
+  local exit_code="$1"
+
+  mock_command_with_script "nc" "exit $exit_code"
+}
+
+make_telnet_mock() {
+  local output="$1"
+
+  mock_command_with_script "telnet" "printf '%s\n' \"$output\""
+}
+
 @test "smoke_url_ok extracts the last HTTP status code" {
   make_curl_mock $'HTTP/1.1 302 Found\nHTTP/2 200 OK\n' "hello"
 
@@ -187,4 +199,94 @@ PY
 @test "smoke_report exits 1 when there are failures" {
   run bash -c 'source ./smoke.sh; SMOKE_TESTS_FAILED=1; SMOKE_TESTS_RUN=1; smoke_report'
   [ "$status" -eq 1 ]
+}
+
+@test "smoke_tcp_ok uses nc when available" {
+  make_curl_mock $'HTTP/1.1 200 OK\n' "ok"
+  make_nc_mock 0
+
+  source "${BATS_TEST_DIRNAME}/../smoke.sh"
+
+  smoke_tcp_ok "example.test" 443
+
+  run smoke_response_body
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Connected"* ]]
+  assert_mock_called "nc" "-z -w 5 example.test 443"
+}
+
+@test "smoke_tcp_ok falls back to telnet when nc not on PATH" {
+  make_curl_mock $'HTTP/1.1 200 OK\n' "ok"
+  make_telnet_mock "Connected"
+  mock_passthrough_command "grep" "/usr/bin/grep"
+
+  source "${BATS_TEST_DIRNAME}/../smoke.sh"
+
+  PATH="$MOCK_BIN_DIR:/bin"
+  smoke_tcp_ok "example.test" 443
+
+  run smoke_response_body
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Connected"* ]]
+  assert_mock_called "telnet" "example.test 443"
+  assert_mock_not_called "nc"
+}
+
+@test "SMOKE_AFTER_RESPONSE callback runs after smoke_url" {
+  make_curl_mock $'HTTP/1.1 200 OK\n' "ok"
+
+  source "${BATS_TEST_DIRNAME}/../smoke.sh"
+
+  after_called=0
+  after() {
+    after_called=1
+  }
+  # shellcheck disable=SC2034
+  SMOKE_AFTER_RESPONSE=after
+
+  smoke_url "http://example.test/"
+
+  [ "$after_called" -eq 1 ]
+}
+
+@test "missing HTTP status in headers yields response code 000" {
+  make_curl_mock $'Content-Type: text/plain\n' "ok"
+
+  source "${BATS_TEST_DIRNAME}/../smoke.sh"
+
+  smoke_url "http://example.test/"
+  run smoke_response_code
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 0 ]
+}
+
+@test "curl is called with cookie jar options" {
+  make_curl_mock $'HTTP/1.1 200 OK\n' "ok"
+
+  source "${BATS_TEST_DIRNAME}/../smoke.sh"
+
+  smoke_url "http://example.test/"
+
+  run cat "$MOCK_CALLS_DIR/curl.calls"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"--cookie "* ]]
+  [[ "$output" == *"--cookie-jar "* ]]
+}
+
+@test "smoke_form fails fast when formdata file is missing" {
+  run bash -c 'source ./smoke.sh; smoke_form "http://example.test/" "/no/such/file"'
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"No formdata file"* ]]
+}
+
+@test "failing assertion increments failed count" {
+  make_curl_mock $'HTTP/1.1 200 OK\n' "hello"
+
+  source "${BATS_TEST_DIRNAME}/../smoke.sh"
+
+  smoke_url_ok "http://example.test/"
+  smoke_assert_body "does-not-exist"
+
+  [ "$SMOKE_TESTS_FAILED" -eq 1 ]
+  [ "$SMOKE_TESTS_RUN" -eq 2 ]
 }

@@ -5,8 +5,18 @@ repos:
       - id: check-merge-conflict
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
+      - id: check-case-conflict
+      - id: check-symlinks
+      - id: check-yaml
+      - id: check-json
+        files: '\.json$'
+      - id: detect-private-key
       - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
       - id: trailing-whitespace
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
 
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.12.0-2
@@ -29,3 +39,9 @@ repos:
         entry: bash -c 'command -v bd >/dev/null 2>&1 || exit 0; bd sync --flush-only'
         language: system
         pass_filenames: false
+
+      - id: gofmt
+        name: gofmt
+        entry: bash -c 'command -v gofmt >/dev/null 2>&1 || exit 0; gofmt -w "$@"' --
+        language: system
+        types: [go]
