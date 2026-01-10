@@ -167,6 +167,7 @@ printf '%s\n' \"$output\"
 
   source "${BATS_TEST_DIRNAME}/../smoke.sh"
 
+  # shellcheck disable=SC2034
   DOMAIN="example.test"
 
   expiry=$(

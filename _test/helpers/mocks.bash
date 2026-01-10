@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 export MOCK_BIN_DIR="$BATS_TEST_TMPDIR/mock_bin"
 
 setup_mocks() {
