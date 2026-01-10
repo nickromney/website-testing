@@ -21,3 +21,11 @@ repos:
         args: ["--severity=warning"]
         files: >-
           (^smoke\.sh$)|(^smoke-[^/]+$)|(^_test/.*\.(sh|bash|bats)$)
+
+  - repo: local
+    hooks:
+      - id: beads-flush
+        name: "beads: flush issues DB to JSONL"
+        entry: bash -c 'command -v bd >/dev/null 2>&1 || exit 0; bd sync --flush-only'
+        language: system
+        pass_filenames: false

@@ -12,6 +12,27 @@ bd close <id>         # Complete work
 bd sync               # Sync with git
 ```
 
+## Beads Setup (one-time per clone)
+
+```bash
+# Configure the sync branch workflow (recommended)
+bd migrate sync beads-sync
+
+# Initializes version tracking (.beads/.local_version is gitignored)
+bd ready
+```
+
+## Branch Hygiene
+
+```bash
+# First push for a new branch must set upstream
+git push -u origin HEAD
+
+# Keep working tree clean before pulls/rebases
+git status
+git pull --rebase
+```
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
