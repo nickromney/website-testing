@@ -20,7 +20,7 @@ type HTTPOptions struct {
 }
 
 func HTTPCheck(target string, opts HTTPOptions) (spec.Step, error) {
-	normalized, err := NormalizeTarget(target)
+	normalised, err := NormaliseTarget(target)
 	if err != nil {
 		return spec.Step{}, err
 	}
@@ -36,11 +36,11 @@ func HTTPCheck(target string, opts HTTPOptions) (spec.Step, error) {
 	}
 
 	step := spec.Step{
-		Name: "quick smoke " + normalized,
+		Name: "quick smoke " + normalised,
 		Kind: spec.KindHTTP,
 		Request: spec.Request{
 			Method:  method,
-			URL:     normalized,
+			URL:     normalised,
 			Headers: cloneHeaders(opts.Headers),
 			Body:    opts.Body,
 		},
@@ -55,7 +55,7 @@ func HTTPCheck(target string, opts HTTPOptions) (spec.Step, error) {
 	return step, nil
 }
 
-func NormalizeTarget(target string) (string, error) {
+func NormaliseTarget(target string) (string, error) {
 	target = strings.TrimSpace(target)
 	if target == "" {
 		return "", fmt.Errorf("target is required")

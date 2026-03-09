@@ -170,7 +170,7 @@ func (m builderModel) formText() string {
 }
 
 func (m builderModel) previewText() string {
-	target, err := adhoc.NormalizeTarget(m.target)
+	target, err := adhoc.NormaliseTarget(m.target)
 	if err != nil && strings.TrimSpace(m.target) != "" {
 		return "Target error:\n  " + err.Error()
 	}

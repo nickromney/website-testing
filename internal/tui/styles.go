@@ -3,33 +3,33 @@ package tui
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	backgroundColor     = lipgloss.Color("#0d1117")
-	titleColor          = lipgloss.Color("#f0c674")
-	textColor           = lipgloss.Color("#c9d1d9")
-	subtleTextColor     = lipgloss.Color("#8b949e")
-	activeBorderColor   = lipgloss.Color("#58a6ff")
-	inactiveBorderColor = lipgloss.Color("#30363d")
+	backgroundColour     = lipgloss.Color("#0d1117") //nolint:misspell // lipgloss API uses American spelling.
+	titleColour          = lipgloss.Color("#f0c674") //nolint:misspell // lipgloss API uses American spelling.
+	textColour           = lipgloss.Color("#c9d1d9") //nolint:misspell // lipgloss API uses American spelling.
+	subtleTextColour     = lipgloss.Color("#8b949e") //nolint:misspell // lipgloss API uses American spelling.
+	activeBorderColour   = lipgloss.Color("#58a6ff") //nolint:misspell // lipgloss API uses American spelling.
+	inactiveBorderColour = lipgloss.Color("#30363d") //nolint:misspell // lipgloss API uses American spelling.
 
 	titleStyle = lipgloss.NewStyle().
-			Foreground(titleColor).
-			Background(backgroundColor).
+			Foreground(titleColour).
+			Background(backgroundColour).
 			Bold(true).
 			Padding(0, 1)
 
 	statusBarStyle = lipgloss.NewStyle().
-			Foreground(subtleTextColor).
-			Background(backgroundColor).
+			Foreground(subtleTextColour).
+			Background(backgroundColour).
 			Padding(0, 1)
 
 	paneStyle = lipgloss.NewStyle().
-			Foreground(textColor).
+			Foreground(textColour).
 			Border(lipgloss.RoundedBorder()).
 			Padding(0, 1)
 
 	helpPanelStyle = lipgloss.NewStyle().
-			Foreground(textColor).
-			Background(backgroundColor).
+			Foreground(textColour).
+			Background(backgroundColour).
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(activeBorderColor).
+			BorderForeground(activeBorderColour).
 			Padding(1, 2)
 )

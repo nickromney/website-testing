@@ -484,9 +484,9 @@ func renderPane(title string, content string, width int, height int, active bool
 
 	style := paneStyle.Copy().Width(width).Height(height)
 	if active {
-		style = style.BorderForeground(activeBorderColor)
+		style = style.BorderForeground(activeBorderColour)
 	} else {
-		style = style.BorderForeground(inactiveBorderColor)
+		style = style.BorderForeground(inactiveBorderColour)
 	}
 
 	body := fitContent(content, width-4, maxInt(1, height-3))

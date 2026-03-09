@@ -178,7 +178,7 @@ func TestRunCommandLegacyStyleSummary(t *testing.T) {
 	}
 }
 
-func TestRootQuickTargetUsesColorWhenForced(t *testing.T) {
+func TestRootQuickTargetUsesColourWhenForced(t *testing.T) {
 	t.Setenv("CLICOLOR_FORCE", "1")
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -200,15 +200,15 @@ func TestRootQuickTargetUsesColorWhenForced(t *testing.T) {
 
 	out := stdout.String()
 	if !strings.Contains(out, "[ \x1b[1;32mOK\x1b[0m ]") {
-		t.Fatalf("expected colored OK label, got %q", out)
+		t.Fatalf("expected coloured OK label, got %q", out)
 	}
 	if !strings.Contains(out, "\x1b[42mOK (2/2)\x1b[0m") {
 		t.Fatalf("expected green summary background, got %q", out)
 	}
 }
 
-func TestRootQuickTargetNoColorDisablesAutoColor(t *testing.T) {
-	t.Setenv("NO_COLOR", "1")
+func TestRootQuickTargetNoColourDisablesAutoColour(t *testing.T) {
+	t.Setenv(noColourEnv, "1")
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
@@ -229,6 +229,6 @@ func TestRootQuickTargetNoColorDisablesAutoColor(t *testing.T) {
 
 	out := stdout.String()
 	if strings.Contains(out, "\x1b[") {
-		t.Fatalf("expected plain output when NO_COLOR is set, got %q", out)
+		t.Fatalf("expected plain output when %s is set, got %q", noColourEnv, out)
 	}
 }

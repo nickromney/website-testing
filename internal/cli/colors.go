@@ -14,8 +14,9 @@ const (
 	ansiRedBG         = "\x1b[41m"
 	plainOKLabel      = "[ OK ]"
 	plainFailLabel    = "[FAIL]"
-	forceColorEnv     = "CLICOLOR_FORCE"
-	alternateForceEnv = "FORCE_COLOR"
+	forceColourEnv    = "CLICOLOR_FORCE"
+	alternateForceEnv = "FORCE_COLOR" //nolint:misspell // Standard environment variable name.
+	noColourEnv       = "NO_COLOR"    //nolint:misspell // Standard environment variable name.
 )
 
 type humanPalette struct {
@@ -23,7 +24,7 @@ type humanPalette struct {
 }
 
 func newHumanPalette(w io.Writer) humanPalette {
-	return humanPalette{enabled: colorEnabled(w)}
+	return humanPalette{enabled: colourEnabled(w)}
 }
 
 func (p humanPalette) checkStatus(passed bool) string {
@@ -63,11 +64,11 @@ func (p humanPalette) summary(totalChecks int, failedChecks int) string {
 	return ansiGreenBG + summary + ansiReset
 }
 
-func colorEnabled(w io.Writer) bool {
-	if envForcesColor(forceColorEnv) || envForcesColor(alternateForceEnv) {
+func colourEnabled(w io.Writer) bool {
+	if envForcesColour(forceColourEnv) || envForcesColour(alternateForceEnv) {
 		return true
 	}
-	if _, disabled := os.LookupEnv("NO_COLOR"); disabled {
+	if _, disabled := os.LookupEnv(noColourEnv); disabled {
 		return false
 	}
 	if os.Getenv("CLICOLOR") == "0" {
@@ -88,7 +89,7 @@ func colorEnabled(w io.Writer) bool {
 	return info.Mode()&os.ModeCharDevice != 0
 }
 
-func envForcesColor(name string) bool {
+func envForcesColour(name string) bool {
 	value, ok := os.LookupEnv(name)
 	return ok && value != "" && value != "0"
 }
