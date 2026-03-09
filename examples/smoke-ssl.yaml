@@ -1,0 +1,9 @@
+name: Legacy smoke-ssl parity
+
+steps:
+  - name: networkworld certificate expiry
+    kind: tls
+    tls:
+      address: networkworld.com:443
+    expect:
+      days_remaining_at_least: 35

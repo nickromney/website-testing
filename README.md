@@ -61,6 +61,10 @@ Checked-in examples:
 
 - `examples/http.yaml` for HTTP-only checks
 - `examples/network.yaml` for mixed HTTP/DNS/TLS/TCP checks
+- `examples/smoke-google.yaml` mirroring `smoke-google`
+- `examples/smoke-theregister.yaml` mirroring `smoke-theregister`
+- `examples/smoke-dig.yaml` mirroring `smoke-dig`
+- `examples/smoke-ssl.yaml` mirroring `smoke-ssl`
 
 Supported step kinds:
 

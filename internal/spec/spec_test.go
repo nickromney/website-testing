@@ -96,3 +96,36 @@ func TestLoadSupportsDNSAndNetworkSteps(t *testing.T) {
 		t.Fatalf("tcp.address = %q", got)
 	}
 }
+
+func TestLegacyParityExamplesLoad(t *testing.T) {
+	examplesDir := filepath.Join("..", "..", "examples")
+
+	tests := []struct {
+		name      string
+		stepCount int
+		kinds     []string
+	}{
+		{name: "smoke-google.yaml", stepCount: 1, kinds: []string{KindHTTP}},
+		{name: "smoke-theregister.yaml", stepCount: 3, kinds: []string{KindHTTP, KindHTTP, KindHTTP}},
+		{name: "smoke-dig.yaml", stepCount: 2, kinds: []string{KindDNS, KindDNS}},
+		{name: "smoke-ssl.yaml", stepCount: 1, kinds: []string{KindTLS}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join(examplesDir, tt.name)
+			s, err := Load(path)
+			if err != nil {
+				t.Fatalf("Load(%q) err = %v", path, err)
+			}
+			if len(s.Steps) != tt.stepCount {
+				t.Fatalf("steps = %d, want %d", len(s.Steps), tt.stepCount)
+			}
+			for i, wantKind := range tt.kinds {
+				if got := s.Steps[i].Kind; got != wantKind {
+					t.Fatalf("step %d kind = %q, want %q", i, got, wantKind)
+				}
+			}
+		})
+	}
+}

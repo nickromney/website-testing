@@ -1,0 +1,10 @@
+name: Legacy smoke-google parity
+
+steps:
+  - name: google home
+    request:
+      url: http://google.com/
+    expect:
+      status: 200
+      body_contains:
+        - search

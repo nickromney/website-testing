@@ -1,0 +1,27 @@
+name: Legacy smoke-theregister parity
+base_url: https://www.theregister.com
+
+steps:
+  - name: home
+    request:
+      path: /
+    expect:
+      status: 200
+
+  - name: security
+    request:
+      path: /security
+    expect:
+      status: 200
+      body_contains:
+        - Oh no, you're thinking, yet another cookie pop-up.
+      body_absent:
+        - Sorry, this page doesn't exist!
+
+  - name: missing page
+    request:
+      path: /2022/08/18/non-existent
+    expect:
+      status: 404
+      body_contains:
+        - Sorry, this page doesn't exist!

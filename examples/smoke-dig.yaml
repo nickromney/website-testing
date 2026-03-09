@@ -1,0 +1,26 @@
+name: Legacy smoke-dig parity
+
+steps:
+  - name: networkworld A records
+    kind: dns
+    dns:
+      name: networkworld.com
+      type: A
+    expect:
+      answer_contains:
+        - 151.101.66.165
+        - 151.101.194.165
+      answer_absent:
+        - 1.2.3.4
+
+  - name: networkworld NS records
+    kind: dns
+    dns:
+      name: networkworld.com
+      type: NS
+    expect:
+      answer_contains:
+        - ns-a.pnap.net
+        - ns-b.pnap.net
+      answer_absent:
+        - sullivan.ns.cloudflare.com
