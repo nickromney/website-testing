@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -94,6 +93,11 @@ type resultOutput struct {
 	TLSNotAfter string              `json:"tls_not_after,omitempty"`
 	TLSDays     *int                `json:"tls_days_remaining,omitempty"`
 	TCPAddress  string              `json:"tcp_address,omitempty"`
+}
+
+type humanCheck struct {
+	Passed bool
+	Text   string
 }
 
 type quickOptions struct {
@@ -275,6 +279,8 @@ func runSpecDocument(cmd *cobra.Command, source string, specDoc *spec.Spec, time
 		Passed:  true,
 		Results: make([]resultOutput, 0, len(specDoc.Steps)),
 	}
+	totalChecks := 0
+	failedChecks := 0
 
 	for _, step := range specDoc.Steps {
 		res := r.RunStep(context.Background(), step)
@@ -288,9 +294,17 @@ func runSpecDocument(cmd *cobra.Command, source string, specDoc *spec.Spec, time
 			continue
 		}
 
-		fmt.Fprintf(cmd.OutOrStdout(), "> %s\n", step.Name)
-		for _, line := range humanResultLines(res) {
-			fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", line)
+		checks := humanChecks(res)
+		totalChecks += len(checks)
+		for _, check := range checks {
+			if !check.Passed {
+				failedChecks++
+			}
+		}
+
+		fmt.Fprintf(cmd.OutOrStdout(), "> %s\n", humanStepHeading(res))
+		for _, check := range checks {
+			fmt.Fprintf(cmd.OutOrStdout(), "    %s %s\n", humanCheckStatus(check.Passed), check.Text)
 		}
 	}
 
@@ -300,6 +314,12 @@ func runSpecDocument(cmd *cobra.Command, source string, specDoc *spec.Spec, time
 		enc.SetIndent("", "  ")
 		if err := enc.Encode(output); err != nil {
 			return err
+		}
+	} else {
+		if failedChecks > 0 {
+			fmt.Fprintf(cmd.OutOrStdout(), "FAIL (%d/%d)\n", failedChecks, totalChecks)
+		} else {
+			fmt.Fprintf(cmd.OutOrStdout(), "OK (%d/%d)\n", totalChecks, totalChecks)
 		}
 	}
 
@@ -383,107 +403,267 @@ func toResultOutput(res runner.Result) resultOutput {
 	return out
 }
 
-func humanResultLines(res runner.Result) []string {
-	lines := []string{humanTransportLine(res)}
-	if len(res.Errors) == 0 {
-		return lines
-	}
-
-	for _, err := range res.Errors {
-		lines = append(lines, "FAIL - "+humanizeResultError(res, err))
-	}
-	return lines
-}
-
-func humanTransportLine(res runner.Result) string {
-	duration := res.Duration.Round(time.Millisecond)
+func humanChecks(res runner.Result) []humanCheck {
 	switch res.Kind {
 	case spec.KindDNS:
-		if len(res.Errors) > 0 && len(res.DNSAnswers) == 0 {
-			return fmt.Sprintf("FAIL - DNS %s %s - %s", strings.ToUpper(res.DNSRecordType), res.DNSName, humanizeResultError(res, res.Errors[0]))
-		}
-		return fmt.Sprintf("PASS - DNS %s %s - resolved %d answer(s) in %s", strings.ToUpper(res.DNSRecordType), res.DNSName, len(res.DNSAnswers), duration)
+		return humanDNSChecks(res)
 	case spec.KindTLS:
-		if len(res.Errors) > 0 && res.TLSNotAfter.IsZero() {
-			return fmt.Sprintf("FAIL - TLS %s - %s", tlsDisplayTarget(res), humanizeResultError(res, res.Errors[0]))
-		}
-		return fmt.Sprintf("PASS - TLS %s - handshake succeeded in %s", tlsDisplayTarget(res), duration)
+		return humanTLSChecks(res)
 	case spec.KindTCP:
-		if len(res.Errors) > 0 && len(res.Body) == 0 {
-			return fmt.Sprintf("FAIL - TCP %s - %s", res.TCPAddress, humanizeResultError(res, res.Errors[0]))
-		}
-		return fmt.Sprintf("PASS - TCP %s - connected in %s", res.TCPAddress, duration)
+		return humanTCPChecks(res)
 	default:
-		if len(res.Errors) > 0 && res.StatusCode == 0 {
-			return fmt.Sprintf("FAIL - HTTP %s - %s", httpDisplayTarget(res), humanizeResultError(res, res.Errors[0]))
-		}
-		return httpSuccessLine(res, duration)
+		return humanHTTPChecks(res)
 	}
 }
 
-func humanizeResultError(res runner.Result, err string) string {
-	switch {
-	case strings.HasPrefix(err, "expected body to contain "):
-		needle := strings.TrimPrefix(err, "expected body to contain ")
-		return fmt.Sprintf("body does not contain the string %s", needle)
-	case strings.HasPrefix(err, "expected body to NOT contain "):
-		needle := strings.TrimPrefix(err, "expected body to NOT contain ")
-		return fmt.Sprintf("body unexpectedly contains the string %s", needle)
-	case strings.HasPrefix(err, "expected headers to contain "):
-		needle := strings.TrimPrefix(err, "expected headers to contain ")
-		return fmt.Sprintf("headers do not contain the string %s", needle)
-	case strings.HasPrefix(err, "expected answers to contain "):
-		needle := strings.TrimPrefix(err, "expected answers to contain ")
-		return fmt.Sprintf("DNS answers do not contain the string %s", needle)
-	case strings.HasPrefix(err, "expected answers to NOT contain "):
-		needle := strings.TrimPrefix(err, "expected answers to NOT contain ")
-		return fmt.Sprintf("DNS answers unexpectedly contain the string %s", needle)
-	case strings.HasPrefix(err, "expected status "):
-		var expected, got int
-		if _, scanErr := fmt.Sscanf(err, "expected status %d, got %d", &expected, &got); scanErr == nil {
-			return fmt.Sprintf("expected HTTP %d, got HTTP %d", expected, got)
-		}
-	case strings.HasPrefix(err, "expected days remaining >= "):
-		var minimum, got int
-		if _, scanErr := fmt.Sscanf(err, "expected days remaining >= %d, got %d", &minimum, &got); scanErr == nil {
-			return fmt.Sprintf("certificate expires too soon: %d day(s) remaining, need at least %d", got, minimum)
-		}
+func humanHTTPChecks(res runner.Result) []humanCheck {
+	runtimeErrs := runtimeErrors(res.Errors)
+	if res.StatusCode == 0 && len(runtimeErrs) > 0 {
+		return failureChecks("HTTP request failed: ", runtimeErrs)
 	}
 
-	return err
+	var checks []humanCheck
+	if res.Step.Expect.Status != 0 {
+		text := fmt.Sprintf("%d Response code", res.Step.Expect.Status)
+		if res.StatusCode != res.Step.Expect.Status {
+			text = fmt.Sprintf("%d Response code (got %d)", res.Step.Expect.Status, res.StatusCode)
+		}
+		checks = append(checks, humanCheck{
+			Passed: res.StatusCode == res.Step.Expect.Status,
+			Text:   text,
+		})
+	}
+
+	checks = append(checks, humanBodyChecks(res.Step.Expect, string(res.Body))...)
+	checks = append(checks, humanHeaderChecks(res.Step.Expect, res.Headers)...)
+	checks = append(checks, failureChecks("HTTP request error: ", runtimeErrs)...)
+
+	if len(checks) == 0 {
+		checks = append(checks, humanCheck{
+			Passed: res.StatusCode > 0,
+			Text:   fmt.Sprintf("%d Response code", res.StatusCode),
+		})
+	}
+	return checks
 }
 
-func httpDisplayTarget(res runner.Result) string {
-	parsed, err := url.Parse(res.Step.Request.URL)
-	if err != nil || parsed.Host == "" {
-		if strings.TrimSpace(res.Step.Request.URL) != "" {
-			return res.Step.Request.URL
+func humanDNSChecks(res runner.Result) []humanCheck {
+	runtimeErrs := runtimeErrors(res.Errors)
+	if len(runtimeErrs) > 0 && len(res.DNSAnswers) == 0 {
+		return failureChecks("DNS lookup failed: ", runtimeErrs)
+	}
+
+	var checks []humanCheck
+	checks = append(checks, humanBodyChecks(res.Step.Expect, string(res.Body))...)
+	answerText := strings.Join(res.DNSAnswers, "\n")
+	for _, s := range res.Step.Expect.AnswerContains {
+		if s == "" {
+			continue
 		}
-		return "target"
+		checks = append(checks, humanCheck{
+			Passed: strings.Contains(answerText, s),
+			Text:   humanContainsText(strings.Contains(answerText, s), "Dig results", s),
+		})
 	}
-	if parsed.Path == "" || parsed.Path == "/" {
-		return parsed.Host
+	for _, s := range res.Step.Expect.AnswerAbsent {
+		if s == "" {
+			continue
+		}
+		contains := strings.Contains(answerText, s)
+		checks = append(checks, humanCheck{
+			Passed: !contains,
+			Text:   humanAbsentText(!contains, "Dig results", s),
+		})
 	}
-	return parsed.String()
+	checks = append(checks, failureChecks("DNS lookup error: ", runtimeErrs)...)
+	if len(checks) == 0 {
+		checks = append(checks, humanCheck{
+			Passed: true,
+			Text:   fmt.Sprintf("%s lookup returned %d answer(s)", strings.ToUpper(res.DNSRecordType), len(res.DNSAnswers)),
+		})
+	}
+	return checks
 }
 
-func httpSuccessLine(res runner.Result, duration time.Duration) string {
-	target := httpDisplayTarget(res)
-	parsed, err := url.Parse(res.Step.Request.URL)
-	if err == nil && parsed.Host != "" && (parsed.Path == "" || parsed.Path == "/") {
-		return fmt.Sprintf("PASS - HTTP %d - %s is up (%s)", res.StatusCode, target, duration)
+func humanTLSChecks(res runner.Result) []humanCheck {
+	runtimeErrs := runtimeErrors(res.Errors)
+	if len(runtimeErrs) > 0 && res.TLSNotAfter.IsZero() {
+		return failureChecks("TLS handshake failed: ", runtimeErrs)
 	}
-	return fmt.Sprintf("PASS - HTTP %d - %s responded in %s", res.StatusCode, target, duration)
+
+	var checks []humanCheck
+	checks = append(checks, humanBodyChecks(res.Step.Expect, string(res.Body))...)
+	if res.Step.Expect.DaysRemainingAtLeast != nil {
+		minimum := *res.Step.Expect.DaysRemainingAtLeast
+		passed := res.TLSDaysRemaining >= minimum
+		text := fmt.Sprintf("Certificate valid for %d days", res.TLSDaysRemaining)
+		if !passed {
+			text = fmt.Sprintf("Certificate expires in %d days (need at least %d)", res.TLSDaysRemaining, minimum)
+		}
+		checks = append(checks, humanCheck{Passed: passed, Text: text})
+	}
+	checks = append(checks, failureChecks("TLS error: ", runtimeErrs)...)
+	if len(checks) == 0 {
+		checks = append(checks, humanCheck{Passed: true, Text: "TLS handshake succeeded"})
+	}
+	return checks
 }
 
-func tlsDisplayTarget(res runner.Result) string {
-	if strings.TrimSpace(res.TLSServerName) != "" {
-		return res.TLSServerName
+func humanTCPChecks(res runner.Result) []humanCheck {
+	runtimeErrs := runtimeErrors(res.Errors)
+	if len(runtimeErrs) > 0 && len(res.Body) == 0 {
+		return failureChecks("TCP connection failed: ", runtimeErrs)
 	}
-	if strings.TrimSpace(res.TLSAddress) != "" {
+
+	checks := humanBodyChecks(res.Step.Expect, string(res.Body))
+	checks = append(checks, failureChecks("TCP error: ", runtimeErrs)...)
+	if len(checks) == 0 {
+		checks = append(checks, humanCheck{Passed: true, Text: "TCP connection succeeded"})
+	}
+	return checks
+}
+
+func humanStepHeading(res runner.Result) string {
+	switch res.Kind {
+	case spec.KindDNS:
+		return res.DNSName
+	case spec.KindTLS:
 		return res.TLSAddress
+	case spec.KindTCP:
+		return res.TCPAddress
+	default:
+		return res.Step.Request.URL
 	}
-	return "target"
+}
+
+func humanCheckStatus(passed bool) string {
+	if passed {
+		return "[ OK ]"
+	}
+	return "[FAIL]"
+}
+
+func humanBodyChecks(expect spec.Expect, body string) []humanCheck {
+	var checks []humanCheck
+	for _, s := range expect.BodyContains {
+		if s == "" {
+			continue
+		}
+		contains := strings.Contains(body, s)
+		checks = append(checks, humanCheck{
+			Passed: contains,
+			Text:   humanContainsText(contains, "Body", s),
+		})
+	}
+	for _, s := range expect.BodyAbsent {
+		if s == "" {
+			continue
+		}
+		contains := strings.Contains(body, s)
+		checks = append(checks, humanCheck{
+			Passed: !contains,
+			Text:   humanAbsentText(!contains, "Body", s),
+		})
+	}
+	return checks
+}
+
+func humanHeaderChecks(expect spec.Expect, headers map[string][]string) []humanCheck {
+	if len(expect.HeaderHas) == 0 {
+		return nil
+	}
+
+	var b strings.Builder
+	for k, values := range headers {
+		for _, value := range values {
+			b.WriteString(k)
+			b.WriteString(": ")
+			b.WriteString(value)
+			b.WriteByte('\n')
+		}
+	}
+	headerText := b.String()
+
+	checks := make([]humanCheck, 0, len(expect.HeaderHas))
+	for _, s := range expect.HeaderHas {
+		if s == "" {
+			continue
+		}
+		contains := strings.Contains(headerText, s)
+		checks = append(checks, humanCheck{
+			Passed: contains,
+			Text:   humanContainsText(contains, "Headers", s),
+		})
+	}
+	return checks
+}
+
+func humanContainsText(passed bool, noun string, value string) string {
+	positive, negative := containsVerbs(noun)
+	if passed {
+		return fmt.Sprintf("%s %s %q", noun, positive, value)
+	}
+	return fmt.Sprintf("%s %s %q", noun, negative, value)
+}
+
+func humanAbsentText(passed bool, noun string, value string) string {
+	positive, negative := containsVerbs(noun)
+	if passed {
+		return fmt.Sprintf("(Assert absence of string): %s %s %q", noun, negative, value)
+	}
+	return fmt.Sprintf("(Assert absence of string): %s %s %q", noun, positive, value)
+}
+
+func containsVerbs(noun string) (positive string, negative string) {
+	switch noun {
+	case "Body":
+		return "contains", "does not contain"
+	default:
+		return "contain", "do not contain"
+	}
+}
+
+func runtimeErrors(errors []string) []string {
+	runtime := make([]string, 0, len(errors))
+	for _, err := range errors {
+		if isExpectationError(err) {
+			continue
+		}
+		runtime = append(runtime, err)
+	}
+	return runtime
+}
+
+func isExpectationError(err string) bool {
+	switch {
+	case strings.HasPrefix(err, "expected status "):
+		return true
+	case strings.HasPrefix(err, "expected body to contain "):
+		return true
+	case strings.HasPrefix(err, "expected body to NOT contain "):
+		return true
+	case strings.HasPrefix(err, "expected headers to contain "):
+		return true
+	case strings.HasPrefix(err, "expected answers to contain "):
+		return true
+	case strings.HasPrefix(err, "expected answers to NOT contain "):
+		return true
+	case strings.HasPrefix(err, "expected days remaining >= "):
+		return true
+	default:
+		return false
+	}
+}
+
+func failureChecks(prefix string, errs []string) []humanCheck {
+	checks := make([]humanCheck, 0, len(errs))
+	for _, err := range errs {
+		checks = append(checks, humanCheck{
+			Passed: false,
+			Text:   prefix + err,
+		})
+	}
+	return checks
 }
 
 func isInteractiveTTY() bool {

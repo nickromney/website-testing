@@ -114,7 +114,7 @@ func (r *Runner) runHTTPStep(ctx context.Context, step spec.Step) Result {
 	res.Body = body
 	res.Duration = time.Since(started)
 
-	res.Passed = evaluateHTTP(step.Expect, httpRes.StatusCode, httpRes.Header, body, &res.Errors)
+	res.Passed = evaluateHTTP(step.Expect, httpRes.StatusCode, httpRes.Header, body, &res.Errors) && len(res.Errors) == 0
 	return res
 }
 
@@ -139,7 +139,7 @@ func (r *Runner) runDNSStep(ctx context.Context, step spec.Step) Result {
 	res.DNSAnswers = answers
 	res.Body = []byte(strings.Join(answers, "\n"))
 	res.Duration = time.Since(started)
-	res.Passed = evaluateDNS(step.Expect, answers, res.Body, &res.Errors)
+	res.Passed = evaluateDNS(step.Expect, answers, res.Body, &res.Errors) && len(res.Errors) == 0
 	return res
 }
 
@@ -196,7 +196,7 @@ func (r *Runner) runTLSStep(ctx context.Context, step spec.Step) Result {
 		res.TLSDaysRemaining,
 	))
 	res.Duration = time.Since(started)
-	res.Passed = evaluateTLS(step.Expect, res, &res.Errors)
+	res.Passed = evaluateTLS(step.Expect, res, &res.Errors) && len(res.Errors) == 0
 	return res
 }
 
@@ -219,7 +219,7 @@ func (r *Runner) runTCPStep(ctx context.Context, step spec.Step) Result {
 
 	res.Body = []byte("connected " + step.TCP.Address)
 	res.Duration = time.Since(started)
-	res.Passed = evaluateBodyExpect(step.Expect, res.Body, &res.Errors)
+	res.Passed = evaluateBodyExpect(step.Expect, res.Body, &res.Errors) && len(res.Errors) == 0
 	return res
 }
 
