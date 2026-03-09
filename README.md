@@ -26,7 +26,7 @@ Tagged releases are intended to publish binaries to GitHub Releases via GoReleas
 ### Build From Source
 
 ```bash
-go build -o bin/smoke-go ./cmd/smoke-go
+make build
 ./bin/smoke-go --help
 ```
 
@@ -97,9 +97,10 @@ steps:
 ### Development
 
 ```bash
-go test ./...
-bats -r _test
-pre-commit run -a
+make test
+make vet
+make vuln
+make precommit
 ```
 
 The GitHub Actions checks keep both the legacy Bash surface and the Go experiment under test.
