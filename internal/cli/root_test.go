@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -47,5 +48,29 @@ func TestRunCommandJSON(t *testing.T) {
 	}
 	if got := out.Results[0].StatusCode; got != http.StatusOK {
 		t.Fatalf("status = %d", got)
+	}
+}
+
+func TestRootQuickTarget(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("hello quick smoke"))
+	}))
+	t.Cleanup(srv.Close)
+
+	cmd := NewRootCmd(BuildInfo{Version: "test"})
+	var stdout bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stdout)
+	cmd.SetArgs([]string{srv.URL, "--body-contains", "hello"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute() err = %v", err)
+	}
+
+	out := stdout.String()
+	if !strings.Contains(out, "OK") {
+		t.Fatalf("expected OK output, got %q", out)
 	}
 }

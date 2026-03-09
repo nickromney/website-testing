@@ -14,9 +14,10 @@ The Go path is the primary direction. The Bash scripts still ship, still have te
 Current direction:
 
 - YAML-driven test specs
+- shell-style ad hoc HTTP checks with flags
 - HTTP, DNS, TLS, and TCP step kinds
 - Script-friendly CLI execution
-- Bubble Tea TUI for interactive runs
+- Bubble Tea TUI for interactive config generation and runs
 - GoReleaser-based binary packaging
 
 ### Install
@@ -35,11 +36,16 @@ make build
 Current command surface:
 
 ```bash
+./bin/smoke-go google.com
+./bin/smoke-go https://example.com/health --status 200 --body-contains Example
 ./bin/smoke-go run path/to/spec.yaml
 ./bin/smoke-go run path/to/spec.yaml --json
+./bin/smoke-go tui
 ./bin/smoke-go tui path/to/spec.yaml
 ./bin/smoke-go version
 ```
+
+Quick CLI mode is intended to feel more like the original Bash script: pass a target and optional assertion flags, and it performs a default HTTP smoke check without requiring YAML first.
 
 ### Sample Spec
 
