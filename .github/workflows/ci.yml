@@ -46,11 +46,9 @@ jobs:
         run: bats -r _test
 
       - name: Go tests
-        if: ${{ hashFiles('go.mod') != '' }}
         run: go test ./...
 
   go-quality:
-    if: ${{ hashFiles('go.mod') != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
