@@ -1,0 +1,290 @@
+time=2026-01-10T12:42:16.118Z level=INFO msg="Daemon started (interval: %v, auto-commit: %v, auto-push: %v)" !BADKEY=5s !BADKEY=false !BADKEY=false
+time=2026-01-10T12:42:16.118Z level=INFO msg="using database" path=/Users/nickromney/Developer/personal/website-testing/.beads/beads.db
+time=2026-01-10T12:42:16.122Z level=INFO msg="database opened" path=/Users/nickromney/Developer/personal/website-testing/.beads/beads.db freshness_checking=true
+time=2026-01-10T12:42:16.122Z level=INFO msg="upgrading .beads/.gitignore"
+time=2026-01-10T12:42:16.122Z level=WARN msg="failed to upgrade .gitignore" error="open .beads/.gitignore: no such file or directory"
+time=2026-01-10T12:42:16.132Z level=INFO msg="Repository fingerprint validated: %s" !BADKEY=154e6fbc
+time=2026-01-10T12:42:16.132Z level=INFO msg="starting RPC server" socket=/Users/nickromney/Developer/personal/website-testing/.beads/bd.sock
+time=2026-01-10T12:42:16.132Z level=INFO msg="RPC server ready (socket listening)"
+time=2026-01-10T12:42:16.137Z level=INFO msg="registered in global registry"
+time=2026-01-10T12:42:16.137Z level=INFO msg="Starting %s..." !BADKEY="sync cycle"
+time=2026-01-10T12:42:16.137Z level=INFO msg="Exported to JSONL"
+time=2026-01-10T12:42:19.164Z level=INFO msg="Pull failed: %v" !BADKEY="git pull failed: exit status 1\nfatal: couldn't find remote ref chore/20260110-factory-review\n"
+time=2026-01-10T12:42:19.164Z level=INFO msg="monitoring parent process" pid=0
+time=2026-01-10T12:42:19.165Z level=INFO msg="using event-driven mode"
+time=2026-01-10T12:42:19.167Z level=INFO msg="Auto-pull disabled: use 'git pull' manually to sync remote changes"
+time=2026-01-10T12:42:33.068Z level=INFO msg="Mutation detected: %s %s" create=website-testing-4di
+time=2026-01-10T12:42:33.154Z level=INFO msg="Mutation detected: %s %s" create=website-testing-djz
+time=2026-01-10T12:42:33.258Z level=INFO msg="Mutation detected: %s %s" create=website-testing-3qs
+time=2026-01-10T12:42:33.361Z level=INFO msg="Mutation detected: %s %s" create=website-testing-84o
+time=2026-01-10T12:42:33.464Z level=INFO msg="Mutation detected: %s %s" create=website-testing-v0n
+time=2026-01-10T12:42:33.567Z level=INFO msg="Mutation detected: %s %s" create=website-testing-d8r
+time=2026-01-10T12:42:34.068Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T12:42:34.069Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T12:42:34.069Z level=INFO msg="Pre-export validation failed: %v" !BADKEY="refusing to export: JSONL content has changed since last import (import first to avoid data loss)"
+time=2026-01-10T12:42:54.795Z level=INFO msg="Mutation detected: %s %s" update=website-testing-4di
+time=2026-01-10T12:42:55.073Z level=INFO msg="Mutation detected: %s %s" update=website-testing-djz
+time=2026-01-10T12:42:55.139Z level=INFO msg="Mutation detected: %s %s" update=website-testing-3qs
+time=2026-01-10T12:42:55.564Z level=INFO msg="Mutation detected: %s %s" update=website-testing-84o
+time=2026-01-10T12:42:55.662Z level=INFO msg="Mutation detected: %s %s" update=website-testing-d8r
+time=2026-01-10T12:42:55.761Z level=INFO msg="Mutation detected: %s %s" update=website-testing-v0n
+time=2026-01-10T12:42:56.261Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T12:42:56.261Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T12:42:56.262Z level=INFO msg="Pre-export validation failed: %v" !BADKEY="refusing to export: JSONL content has changed since last import (import first to avoid data loss)"
+time=2026-01-10T12:43:26.681Z level=INFO msg="Mutation detected: %s %s" update=website-testing-84o
+time=2026-01-10T12:43:27.182Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T12:43:27.182Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T12:43:27.183Z level=INFO msg="Pre-export validation failed: %v" !BADKEY="refusing to export: JSONL content has changed since last import (import first to avoid data loss)"
+time=2026-01-10T12:43:29.929Z level=INFO msg="Mutation detected: %s %s" update=website-testing-d8r
+time=2026-01-10T12:43:30.430Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T12:43:30.430Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T12:43:30.431Z level=INFO msg="Pre-export validation failed: %v" !BADKEY="refusing to export: JSONL content has changed since last import (import first to avoid data loss)"
+time=2026-01-10T12:56:19.984Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T12:56:20.036Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T12:56:20.036Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T12:56:21.040Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T12:56:21.041Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T12:56:21.044Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T12:56:41.878Z level=INFO msg="Mutation detected: %s %s" status=website-testing-4di
+time=2026-01-10T12:56:41.962Z level=INFO msg="Mutation detected: %s %s" status=website-testing-djz
+time=2026-01-10T12:56:42.065Z level=INFO msg="Mutation detected: %s %s" status=website-testing-3qs
+time=2026-01-10T12:56:42.171Z level=INFO msg="Mutation detected: %s %s" status=website-testing-84o
+time=2026-01-10T12:56:42.276Z level=INFO msg="Mutation detected: %s %s" status=website-testing-d8r
+time=2026-01-10T12:56:42.398Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T12:56:42.450Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T12:56:42.451Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T12:56:42.778Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T12:56:42.778Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T12:56:42.790Z level=INFO msg="Exported to JSONL"
+time=2026-01-10T12:56:42.790Z level=INFO msg="Export complete"
+time=2026-01-10T12:56:42.790Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T12:56:42.841Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T12:56:42.841Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T12:56:43.845Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T12:56:43.845Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T12:56:43.846Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T12:57:21.592Z level=INFO msg="Mutation detected: %s %s" update=website-testing-v0n
+time=2026-01-10T12:57:22.094Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T12:57:22.095Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T12:57:22.098Z level=INFO msg="Exported to JSONL"
+time=2026-01-10T12:57:22.098Z level=INFO msg="Export complete"
+time=2026-01-10T12:57:22.098Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T12:57:22.150Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T12:57:22.150Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T12:57:23.154Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T12:57:23.155Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T12:57:23.156Z level=INFO msg="JSONL content changed, proceeding with %s..." !BADKEY=auto-import
+time=2026-01-10T12:57:23.186Z level=INFO msg="⚠️  WARNING: Uncommitted local changes detected in %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T12:57:23.186Z level=INFO msg="   Pulling from remote may overwrite local unpushed changes."
+time=2026-01-10T12:57:23.186Z level=INFO msg="   Consider running 'bd sync' to commit and push your changes first."
+time=2026-01-10T12:57:24.648Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T12:57:24.700Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T12:57:24.700Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T12:57:25.702Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T12:57:25.703Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T12:57:25.706Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T12:58:23.866Z level=INFO msg="Pull failed: %v (backoff: %v)" !BADKEY="git pull failed: signal: killed\nsign_and_send_pubkey: signing failed for ED25519 \"/Users/nickromney/.ssh/personal_github_authentication\" from agent: communication with agent failed\r\ngit@github.com: Permission denied (publickey).\r\nfatal: Could not read from remote repository.\n\nPlease make sure you have the correct access rights\nand the repository exists.\n" !BADKEY=30s
+time=2026-01-10T14:53:39.738Z level=INFO msg="Mutation detected: %s %s" update=website-testing-djz
+time=2026-01-10T14:53:39.808Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T14:53:39.859Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T14:53:39.859Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T14:53:40.239Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T14:53:40.239Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T14:53:40.255Z level=INFO msg="Exported to JSONL"
+time=2026-01-10T14:53:40.255Z level=INFO msg="Export complete"
+time=2026-01-10T14:53:40.256Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T14:53:40.307Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T14:53:40.307Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T14:53:41.309Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T14:53:41.311Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T14:53:41.312Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T14:54:04.776Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T14:54:04.828Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T14:54:04.828Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T14:54:05.829Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T14:54:05.831Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T14:54:05.833Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T14:55:21.770Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T14:55:21.821Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T14:55:21.821Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T14:55:22.823Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T14:55:22.824Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T14:55:22.826Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T14:56:28.100Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T14:56:28.151Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T14:56:28.151Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T14:56:29.154Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T14:56:29.155Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T14:56:29.158Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T14:56:46.598Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T14:56:46.649Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T14:56:46.649Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T14:56:47.651Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T14:56:47.652Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T14:56:47.653Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T15:56:23.777Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T15:56:23.829Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T15:56:23.829Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T15:56:24.830Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T15:56:24.830Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T15:56:24.832Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T17:17:58.445Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T17:17:58.496Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T17:17:58.496Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T17:17:59.500Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T17:17:59.501Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T17:17:59.503Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T17:18:08.000Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T17:18:08.051Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T17:18:08.051Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T17:18:09.053Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T17:18:09.054Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T17:18:09.056Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T17:22:28.347Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T17:22:28.398Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T17:22:28.398Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T17:22:29.400Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T17:22:29.400Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T17:22:29.401Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T17:22:53.670Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T17:22:53.721Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T17:22:53.721Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T17:22:54.723Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T17:22:54.725Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T17:22:54.727Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T17:23:04.829Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T17:23:04.880Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T17:23:04.880Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T17:23:05.882Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T17:23:05.882Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T17:23:05.883Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:23:27.670Z level=INFO msg="Mutation detected: %s %s" create=website-testing-4f8
+time=2026-01-10T20:23:27.801Z level=INFO msg="Mutation detected: %s %s" create=website-testing-pcc
+time=2026-01-10T20:23:27.898Z level=INFO msg="Mutation detected: %s %s" create=website-testing-bc3
+time=2026-01-10T20:23:28.400Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T20:23:28.401Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T20:23:28.404Z level=INFO msg="Exported to JSONL"
+time=2026-01-10T20:23:28.404Z level=INFO msg="Export complete"
+time=2026-01-10T20:23:28.404Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:23:28.456Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:23:28.456Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:23:29.459Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:23:29.460Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:23:29.460Z level=INFO msg="JSONL content changed, proceeding with %s..." !BADKEY=auto-import
+time=2026-01-10T20:23:29.495Z level=INFO msg="⚠️  WARNING: Uncommitted local changes detected in %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:23:29.495Z level=INFO msg="   Pulling from remote may overwrite local unpushed changes."
+time=2026-01-10T20:23:29.495Z level=INFO msg="   Consider running 'bd sync' to commit and push your changes first."
+time=2026-01-10T20:23:41.991Z level=INFO msg="Mutation detected: %s %s" update=website-testing-4f8
+time=2026-01-10T20:23:42.086Z level=INFO msg="Mutation detected: %s %s" update=website-testing-pcc
+time=2026-01-10T20:23:42.188Z level=INFO msg="Mutation detected: %s %s" update=website-testing-bc3
+time=2026-01-10T20:23:42.691Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T20:23:42.691Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T20:23:42.691Z level=INFO msg="Pre-export validation failed: %v" !BADKEY="refusing to export: JSONL content has changed since last import (import first to avoid data loss)"
+time=2026-01-10T20:24:30.199Z level=INFO msg="Pull failed: %v (backoff: %v)" !BADKEY="git pull failed: signal: killed\nsign_and_send_pubkey: signing failed for ED25519 \"/Users/nickromney/.ssh/personal_github_authentication\" from agent: communication with agent failed\r\ngit@github.com: Permission denied (publickey).\r\nfatal: Could not read from remote repository.\n\nPlease make sure you have the correct access rights\nand the repository exists.\n" !BADKEY=1m0s
+time=2026-01-10T20:25:39.886Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:25:40.825Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:25:40.905Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:25:40.957Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:25:40.957Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:25:41.304Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:25:41.306Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:25:41.308Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:25:41.960Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:25:41.961Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:25:41.961Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:26:06.955Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:26:07.472Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:26:07.957Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:26:07.958Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:26:07.958Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:26:08.476Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:26:08.477Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:26:08.477Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:26:39.653Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:26:40.161Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:26:41.003Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:26:41.092Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:26:41.144Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:26:41.144Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:26:41.480Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:26:41.480Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:26:41.481Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:26:42.147Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:26:42.148Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:26:42.149Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:30:49.966Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:30:50.506Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:30:51.130Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:30:51.241Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:30:51.292Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:30:51.292Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:30:52.295Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:30:52.297Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:30:52.300Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:31:10.410Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:31:10.951Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:31:11.578Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:31:11.661Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:31:11.713Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:31:11.713Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:31:12.716Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:31:12.717Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:31:12.719Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:31:32.329Z level=INFO msg="Mutation detected: %s %s" update=website-testing-v0n
+time=2026-01-10T20:31:32.419Z level=INFO msg="Mutation detected: %s %s" status=website-testing-4f8
+time=2026-01-10T20:31:32.518Z level=INFO msg="Mutation detected: %s %s" status=website-testing-pcc
+time=2026-01-10T20:31:32.621Z level=INFO msg="Mutation detected: %s %s" status=website-testing-bc3
+time=2026-01-10T20:31:32.727Z level=INFO msg="Mutation detected: %s %s" status=website-testing-v0n
+time=2026-01-10T20:31:33.229Z level=INFO msg="Export triggered by mutation events"
+time=2026-01-10T20:31:33.229Z level=INFO msg="Starting %s..." !BADKEY=export
+time=2026-01-10T20:31:33.233Z level=INFO msg="Exported to JSONL"
+time=2026-01-10T20:31:33.233Z level=INFO msg="Export complete"
+time=2026-01-10T20:31:33.233Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:31:33.286Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:31:33.286Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:31:34.290Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:31:34.291Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:31:34.292Z level=INFO msg="JSONL content changed, proceeding with %s..." !BADKEY=auto-import
+time=2026-01-10T20:31:34.323Z level=INFO msg="⚠️  WARNING: Uncommitted local changes detected in %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:31:34.323Z level=INFO msg="   Pulling from remote may overwrite local unpushed changes."
+time=2026-01-10T20:31:34.323Z level=INFO msg="   Consider running 'bd sync' to commit and push your changes first."
+time=2026-01-10T20:31:38.471Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:31:38.524Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:31:38.524Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:31:39.528Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:31:39.529Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:31:39.531Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:31:53.296Z level=INFO msg="File change detected: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:31:54.300Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:31:54.300Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T20:31:54.300Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T20:32:11.458Z level=INFO msg="Pull failed: %v (backoff: %v)" !BADKEY="git pull failed: exit status 1\nsign_and_send_pubkey: signing failed for ED25519 \"/Users/nickromney/.ssh/personal_github_authentication\" from agent: agent refused operation\r\ngit@github.com: Permission denied (publickey).\r\nfatal: Could not read from remote repository.\n\nPlease make sure you have the correct access rights\nand the repository exists.\n" !BADKEY=2m0s
+time=2026-01-10T20:32:28.863Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:32:28.915Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:32:28.915Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:32:29.918Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:32:29.919Z level=INFO msg="Skipping %s: in backoff period" !BADKEY=auto-import
+time=2026-01-10T20:33:48.447Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T20:33:48.500Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T20:33:48.500Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T20:33:49.503Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T20:33:49.505Z level=INFO msg="Skipping %s: in backoff period" !BADKEY=auto-import
+time=2026-01-10T22:44:10.801Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T22:44:10.852Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T22:44:10.852Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T22:44:11.855Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T22:44:11.857Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T22:44:11.860Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T22:44:27.595Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T22:44:27.646Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T22:44:27.646Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T22:44:28.649Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T22:44:28.650Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T22:44:28.652Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T22:46:01.488Z level=INFO msg="JSONL removed/renamed, re-establishing watch"
+time=2026-01-10T22:46:01.540Z level=INFO msg="Successfully re-established JSONL watch after %v" !BADKEY=50ms
+time=2026-01-10T22:46:01.540Z level=INFO msg="JSONL file created: %s" !BADKEY=/Users/nickromney/Developer/personal/website-testing/.beads/issues.jsonl
+time=2026-01-10T22:46:02.542Z level=INFO msg="Import triggered by file change"
+time=2026-01-10T22:46:02.544Z level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-01-10T22:46:02.546Z level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
+time=2026-01-10T22:53:06.218Z level=INFO msg="Received signal %v, shutting down..." !BADKEY=terminated
