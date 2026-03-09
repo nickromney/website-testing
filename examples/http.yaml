@@ -1,0 +1,21 @@
+name: Example Dot Com
+base_url: https://example.com
+
+steps:
+  - name: home page
+    request:
+      path: /
+      headers:
+        User-Agent: smoke/example
+    expect:
+      status: 200
+      body_contains:
+        - Example Domain
+      header_contains:
+        - Content-Type: text/html
+
+  - name: not found page
+    request:
+      path: /does-not-exist
+    expect:
+      status: 404

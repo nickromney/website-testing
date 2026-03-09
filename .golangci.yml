@@ -1,0 +1,14 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - govet
+    - misspell
+  settings:
+    misspell:
+      locale: UK
+
+formatters:
+  enable:
+    - gofmt

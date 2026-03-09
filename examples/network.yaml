@@ -1,0 +1,32 @@
+name: Example Mixed Checks
+
+steps:
+  - name: home page
+    kind: http
+    request:
+      method: GET
+      url: https://example.com/
+      headers:
+        User-Agent: smoke/example
+    expect:
+      status: 200
+      body_contains:
+        - Example Domain
+
+  - name: dns A lookup
+    kind: dns
+    dns:
+      name: example.com
+      type: A
+
+  - name: tls expiry
+    kind: tls
+    tls:
+      address: example.com:443
+    expect:
+      days_remaining_at_least: 7
+
+  - name: tcp 443 connect
+    kind: tcp
+    tcp:
+      address: example.com:443
