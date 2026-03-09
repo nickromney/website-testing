@@ -14,6 +14,44 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	rootLong = `smoke-go runs declarative YAML smoke specs for website and network checks.
+
+It supports four step kinds:
+  - http: request/response assertions
+  - dns: A, AAAA, CNAME, MX, NS, and TXT lookups
+  - tls: certificate expiry and peer certificate inspection
+  - tcp: raw TCP connectivity checks
+
+Specs are YAML files with a list of steps. Each step declares a kind-specific
+target plus expectations. Use 'run' for plain terminal or JSON output, and use
+'tui' for an interactive Bubble Tea view with reruns and per-step details.`
+
+	rootExample = `  smoke-go run examples/http.yaml
+  smoke-go run examples/network.yaml --json
+  smoke-go tui examples/network.yaml
+  smoke-go run my-checks.yaml --timeout 10s`
+
+	runLong = `Run executes every step in a YAML smoke spec and prints a human summary.
+
+Use --json when you want a machine-readable result object for automation. The
+command exits non-zero if any step fails or if the spec cannot be loaded.`
+
+	runExample = `  smoke-go run examples/http.yaml
+  smoke-go run examples/network.yaml
+  smoke-go run examples/network.yaml --json
+  smoke-go run prod.yaml --timeout 15s`
+
+	tuiLong = `TUI runs a YAML smoke spec in an interactive terminal interface.
+
+The TUI shows a step list, detailed request/response or network probe data, and
+lets you rerun either the selected step or the full spec. It requires an
+interactive TTY.`
+
+	tuiExample = `  smoke-go tui examples/network.yaml
+  smoke-go tui prod.yaml --timeout 15s`
+)
+
 type BuildInfo struct {
 	Version   string
 	BuildTime string
@@ -54,9 +92,11 @@ func NewRootCmd(buildInfo BuildInfo) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "smoke-go",
 		Short:         "HTTP, DNS, TLS, and TCP smoke testing runner",
-		Long:          "smoke-go runs declarative YAML smoke-test specs either as plain CLI output or in an interactive Bubble Tea TUI.",
+		Long:          rootLong,
+		Example:       rootExample,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		Args:          cobra.NoArgs,
 	}
 
 	root.Version = buildInfo.Version + "\nbuild_time: " + buildInfo.BuildTime + "\ngit_commit: " + buildInfo.GitCommit
@@ -82,9 +122,11 @@ func buildRunCmd() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "run SPEC",
-		Short: "Run a smoke spec in the terminal",
-		Args:  cobra.ExactArgs(1),
+		Use:     "run SPEC",
+		Short:   "Run a smoke spec in the terminal",
+		Long:    runLong,
+		Example: runExample,
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			specPath := args[0]
 			specDoc, err := spec.Load(specPath)
@@ -143,8 +185,8 @@ func buildRunCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Second, "Per-step HTTP timeout")
-	cmd.Flags().BoolVar(&jsonOut, "json", false, "Emit machine-readable JSON")
+	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Second, "Per-step network timeout")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "Emit machine-readable JSON to stdout")
 
 	return cmd
 }
@@ -153,9 +195,11 @@ func buildTUICmd() *cobra.Command {
 	var timeout time.Duration
 
 	cmd := &cobra.Command{
-		Use:   "tui SPEC",
-		Short: "Run a smoke spec in the interactive TUI",
-		Args:  cobra.ExactArgs(1),
+		Use:     "tui SPEC",
+		Short:   "Run a smoke spec in the interactive TUI",
+		Long:    tuiLong,
+		Example: tuiExample,
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			specPath := args[0]
 			specDoc, err := spec.Load(specPath)
@@ -179,7 +223,7 @@ func buildTUICmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Second, "Per-step HTTP timeout")
+	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Second, "Per-step network timeout")
 
 	return cmd
 }
