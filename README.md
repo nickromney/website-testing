@@ -14,6 +14,7 @@ The Go path is the primary direction. The Bash scripts still ship, still have te
 Current direction:
 
 - YAML-driven test specs
+- HTTP, DNS, TLS, and TCP step kinds
 - Script-friendly CLI execution
 - Bubble Tea TUI for interactive runs
 - GoReleaser-based binary packaging
@@ -42,11 +43,24 @@ Current command surface:
 
 ### Sample Spec
 
-There is a checked-in sample spec at `examples/http.yaml`. Start there, or use this inline example:
+Checked-in examples:
+
+- `examples/http.yaml` for HTTP-only checks
+- `examples/network.yaml` for mixed HTTP/DNS/TLS/TCP checks
+
+Supported step kinds:
+
+- `kind: http` with `request` and HTTP expectations
+- `kind: dns` with `dns.name`, `dns.type`, optional `dns.server`, and `expect.answer_contains`
+- `kind: tls` with `tls.address`, optional `tls.server_name`, and `expect.days_remaining_at_least`
+- `kind: tcp` with `tcp.address`
+
+Inline mixed example:
 
 ```yaml
 steps:
   - name: homepage
+    kind: http
     request:
       method: GET
       url: https://example.org/
@@ -60,6 +74,24 @@ steps:
         - Exception
       header_contains:
         - Content-Type: text/html
+
+  - name: dns lookup
+    kind: dns
+    dns:
+      name: example.org
+      type: A
+
+  - name: tls expiry
+    kind: tls
+    tls:
+      address: example.org:443
+    expect:
+      days_remaining_at_least: 7
+
+  - name: tcp connect
+    kind: tcp
+    tcp:
+      address: example.org:443
 ```
 
 ### Development

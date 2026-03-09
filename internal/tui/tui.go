@@ -271,7 +271,7 @@ func (m model) stepListText() string {
 			detail = m.results[i].Duration.Round(time.Millisecond).String()
 		}
 
-		line := fmt.Sprintf("%s %s %-30s %s", cursor, statusText, truncateLabel(step.Name, 30), detail)
+		line := fmt.Sprintf("%s %s %-30s %s", cursor, statusText, truncateLabel(stepDisplayName(step), 30), detail)
 		b.WriteString(strings.TrimRight(line, " "))
 		b.WriteByte('\n')
 	}
@@ -288,39 +288,56 @@ func (m model) detailText() string {
 
 	sections := []string{
 		fmt.Sprintf("Step %d/%d", m.selected+1, len(m.spec.Steps)),
+		fmt.Sprintf("Kind: %s", step.Kind),
 		fmt.Sprintf("Status: %s", stateText(m.states[m.selected], res.Passed)),
-		fmt.Sprintf("Request: %s %s", step.Request.Method, step.Request.URL),
 	}
 
-	if len(step.Request.Headers) > 0 {
-		sections = append(sections, "Request headers:")
-		keys := make([]string, 0, len(step.Request.Headers))
-		for k := range step.Request.Headers {
-			keys = append(keys, k)
+	switch step.Kind {
+	case spec.KindDNS:
+		sections = append(sections,
+			"Query:",
+			"  name: "+step.DNS.Name,
+			"  type: "+step.DNS.Type,
+		)
+		if strings.TrimSpace(step.DNS.Server) != "" {
+			sections = append(sections, "  server: "+step.DNS.Server)
 		}
-		sort.Strings(keys)
-		for _, k := range keys {
-			sections = append(sections, "  "+k+": "+step.Request.Headers[k])
+	case spec.KindTLS:
+		sections = append(sections,
+			"Target:",
+			"  address: "+step.TLS.Address,
+			"  server_name: "+step.TLS.ServerName,
+		)
+	case spec.KindTCP:
+		sections = append(sections,
+			"Target:",
+			"  address: "+step.TCP.Address,
+		)
+	default:
+		sections = append(sections, fmt.Sprintf("Request: %s %s", step.Request.Method, step.Request.URL))
+
+		if len(step.Request.Headers) > 0 {
+			sections = append(sections, "Request headers:")
+			keys := make([]string, 0, len(step.Request.Headers))
+			for k := range step.Request.Headers {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				sections = append(sections, "  "+k+": "+step.Request.Headers[k])
+			}
+		}
+
+		if strings.TrimSpace(step.Request.Body) != "" {
+			sections = append(sections, "Request body:")
+			sections = append(sections, indentBlock(step.Request.Body)...)
 		}
 	}
 
-	if strings.TrimSpace(step.Request.Body) != "" {
-		sections = append(sections, "Request body:")
-		sections = append(sections, indentBlock(step.Request.Body)...)
-	}
-
-	sections = append(sections, "Expect:")
-	if step.Expect.Status != 0 {
-		sections = append(sections, fmt.Sprintf("  status == %d", step.Expect.Status))
-	}
-	for _, s := range step.Expect.BodyContains {
-		sections = append(sections, fmt.Sprintf("  body contains %q", s))
-	}
-	for _, s := range step.Expect.BodyAbsent {
-		sections = append(sections, fmt.Sprintf("  body excludes %q", s))
-	}
-	for _, s := range step.Expect.HeaderHas {
-		sections = append(sections, fmt.Sprintf("  headers contain %q", s))
+	expectLines := formatExpect(step.Expect)
+	if len(expectLines) > 0 {
+		sections = append(sections, "Expect:")
+		sections = append(sections, expectLines...)
 	}
 
 	if res.StartedAt.IsZero() {
@@ -328,11 +345,49 @@ func (m model) detailText() string {
 		return strings.Join(sections, "\n")
 	}
 
-	sections = append(sections,
-		"Result:",
-		fmt.Sprintf("  status code: %d", res.StatusCode),
-		fmt.Sprintf("  duration: %s", res.Duration.Round(time.Millisecond)),
-	)
+	sections = append(sections, "Result:")
+	switch res.Kind {
+	case spec.KindDNS:
+		sections = append(sections,
+			fmt.Sprintf("  duration: %s", res.Duration.Round(time.Millisecond)),
+			fmt.Sprintf("  answers: %d", len(res.DNSAnswers)),
+		)
+		if strings.TrimSpace(res.DNSResolver) != "" {
+			sections = append(sections, "  resolver: "+res.DNSResolver)
+		}
+		if len(res.DNSAnswers) > 0 {
+			sections = append(sections, "Answers:")
+			for _, answer := range res.DNSAnswers {
+				sections = append(sections, "  - "+answer)
+			}
+		}
+	case spec.KindTLS:
+		sections = append(sections,
+			fmt.Sprintf("  duration: %s", res.Duration.Round(time.Millisecond)),
+			fmt.Sprintf("  address: %s", res.TLSAddress),
+			fmt.Sprintf("  server_name: %s", res.TLSServerName),
+			fmt.Sprintf("  days remaining: %d", res.TLSDaysRemaining),
+		)
+		if !res.TLSNotAfter.IsZero() {
+			sections = append(sections, "  not_after: "+res.TLSNotAfter.Format(time.RFC3339))
+		}
+		if strings.TrimSpace(res.TLSSubject) != "" {
+			sections = append(sections, "  subject: "+res.TLSSubject)
+		}
+		if strings.TrimSpace(res.TLSIssuer) != "" {
+			sections = append(sections, "  issuer: "+res.TLSIssuer)
+		}
+	case spec.KindTCP:
+		sections = append(sections,
+			fmt.Sprintf("  duration: %s", res.Duration.Round(time.Millisecond)),
+			fmt.Sprintf("  address: %s", res.TCPAddress),
+		)
+	default:
+		sections = append(sections,
+			fmt.Sprintf("  status code: %d", res.StatusCode),
+			fmt.Sprintf("  duration: %s", res.Duration.Round(time.Millisecond)),
+		)
+	}
 
 	if len(res.Errors) > 0 {
 		sections = append(sections, "Errors:")
@@ -360,6 +415,39 @@ func (m model) detailText() string {
 	}
 
 	return strings.Join(sections, "\n")
+}
+
+func stepDisplayName(step spec.Step) string {
+	if step.Kind == "" || step.Kind == spec.KindHTTP {
+		return step.Name
+	}
+	return step.Kind + ": " + step.Name
+}
+
+func formatExpect(expect spec.Expect) []string {
+	var lines []string
+	if expect.Status != 0 {
+		lines = append(lines, fmt.Sprintf("  status == %d", expect.Status))
+	}
+	for _, s := range expect.BodyContains {
+		lines = append(lines, fmt.Sprintf("  body contains %q", s))
+	}
+	for _, s := range expect.BodyAbsent {
+		lines = append(lines, fmt.Sprintf("  body excludes %q", s))
+	}
+	for _, s := range expect.HeaderHas {
+		lines = append(lines, fmt.Sprintf("  headers contain %q", s))
+	}
+	for _, s := range expect.AnswerContains {
+		lines = append(lines, fmt.Sprintf("  answers contain %q", s))
+	}
+	for _, s := range expect.AnswerAbsent {
+		lines = append(lines, fmt.Sprintf("  answers exclude %q", s))
+	}
+	if expect.DaysRemainingAtLeast != nil {
+		lines = append(lines, fmt.Sprintf("  days remaining >= %d", *expect.DaysRemainingAtLeast))
+	}
+	return lines
 }
 
 func (m model) helpPanel() string {

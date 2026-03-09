@@ -27,6 +27,7 @@ type runOutput struct {
 }
 
 type resultOutput struct {
+	Kind        string              `json:"kind"`
 	Name        string              `json:"name"`
 	Method      string              `json:"method"`
 	URL         string              `json:"url"`
@@ -36,12 +37,23 @@ type resultOutput struct {
 	Errors      []string            `json:"errors,omitempty"`
 	Headers     map[string][]string `json:"headers,omitempty"`
 	BodyPreview string              `json:"body_preview,omitempty"`
+	DNSName     string              `json:"dns_name,omitempty"`
+	DNSType     string              `json:"dns_type,omitempty"`
+	DNSServer   string              `json:"dns_server,omitempty"`
+	DNSAnswers  []string            `json:"dns_answers,omitempty"`
+	TLSAddress  string              `json:"tls_address,omitempty"`
+	TLSServer   string              `json:"tls_server_name,omitempty"`
+	TLSSubject  string              `json:"tls_subject,omitempty"`
+	TLSIssuer   string              `json:"tls_issuer,omitempty"`
+	TLSNotAfter string              `json:"tls_not_after,omitempty"`
+	TLSDays     *int                `json:"tls_days_remaining,omitempty"`
+	TCPAddress  string              `json:"tcp_address,omitempty"`
 }
 
 func NewRootCmd(buildInfo BuildInfo) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "smoke-go",
-		Short:         "HTTP smoke testing runner with CLI and TUI modes",
+		Short:         "HTTP, DNS, TLS, and TCP smoke testing runner",
 		Long:          "smoke-go runs declarative YAML smoke-test specs either as plain CLI output or in an interactive Bubble Tea TUI.",
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -105,11 +117,11 @@ func buildRunCmd() *cobra.Command {
 
 				fmt.Fprintf(cmd.OutOrStdout(), "> %s\n", step.Name)
 				if res.Passed {
-					fmt.Fprintf(cmd.OutOrStdout(), "  OK (%d, %s)\n", res.StatusCode, res.Duration.Round(time.Millisecond))
+					fmt.Fprintf(cmd.OutOrStdout(), "  OK (%s)\n", humanSummary(res))
 					continue
 				}
 
-				fmt.Fprintf(cmd.OutOrStdout(), "  FAIL (%d, %s)\n", res.StatusCode, res.Duration.Round(time.Millisecond))
+				fmt.Fprintf(cmd.OutOrStdout(), "  FAIL (%s)\n", humanSummary(res))
 				for _, e := range res.Errors {
 					fmt.Fprintf(cmd.OutOrStdout(), "    - %s\n", e)
 				}
@@ -187,6 +199,7 @@ func buildVersionCmd(buildInfo BuildInfo) *cobra.Command {
 
 func toResultOutput(res runner.Result) resultOutput {
 	out := resultOutput{
+		Kind:       res.Kind,
 		Name:       res.Step.Name,
 		Method:     res.Step.Request.Method,
 		URL:        res.Step.Request.URL,
@@ -195,6 +208,20 @@ func toResultOutput(res runner.Result) resultOutput {
 		Passed:     res.Passed,
 		Errors:     append([]string(nil), res.Errors...),
 		Headers:    res.Headers.Clone(),
+		DNSName:    res.DNSName,
+		DNSType:    res.DNSRecordType,
+		DNSServer:  res.DNSResolver,
+		DNSAnswers: append([]string(nil), res.DNSAnswers...),
+		TLSAddress: res.TLSAddress,
+		TLSServer:  res.TLSServerName,
+		TLSSubject: res.TLSSubject,
+		TLSIssuer:  res.TLSIssuer,
+		TCPAddress: res.TCPAddress,
+	}
+	if !res.TLSNotAfter.IsZero() {
+		out.TLSNotAfter = res.TLSNotAfter.Format(time.RFC3339)
+		days := res.TLSDaysRemaining
+		out.TLSDays = &days
 	}
 
 	text := strings.ReplaceAll(string(res.Body), "\x00", "\uFFFD")
@@ -206,6 +233,20 @@ func toResultOutput(res runner.Result) resultOutput {
 	}
 
 	return out
+}
+
+func humanSummary(res runner.Result) string {
+	duration := res.Duration.Round(time.Millisecond)
+	switch res.Kind {
+	case spec.KindDNS:
+		return fmt.Sprintf("%d answer(s), %s", len(res.DNSAnswers), duration)
+	case spec.KindTLS:
+		return fmt.Sprintf("%d day(s) remaining, %s", res.TLSDaysRemaining, duration)
+	case spec.KindTCP:
+		return fmt.Sprintf("%s, %s", res.TCPAddress, duration)
+	default:
+		return fmt.Sprintf("%d, %s", res.StatusCode, duration)
+	}
 }
 
 func isInteractiveTTY() bool {
