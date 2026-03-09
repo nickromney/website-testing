@@ -18,52 +18,52 @@ const (
 )
 
 type Spec struct {
-	Name    string `yaml:"name"`
-	BaseURL string `yaml:"base_url"`
+	Name    string `yaml:"name,omitempty"`
+	BaseURL string `yaml:"base_url,omitempty"`
 	Steps   []Step `yaml:"steps"`
 }
 
 type Step struct {
-	Name    string   `yaml:"name"`
-	Kind    string   `yaml:"kind"`
-	Request Request  `yaml:"request"`
-	DNS     DNSQuery `yaml:"dns"`
-	TLS     TLSProbe `yaml:"tls"`
-	TCP     TCPProbe `yaml:"tcp"`
-	Expect  Expect   `yaml:"expect"`
+	Name    string   `yaml:"name,omitempty"`
+	Kind    string   `yaml:"kind,omitempty"`
+	Request Request  `yaml:"request,omitempty"`
+	DNS     DNSQuery `yaml:"dns,omitempty"`
+	TLS     TLSProbe `yaml:"tls,omitempty"`
+	TCP     TCPProbe `yaml:"tcp,omitempty"`
+	Expect  Expect   `yaml:"expect,omitempty"`
 }
 
 type Request struct {
-	Method  string            `yaml:"method"`
-	URL     string            `yaml:"url"`
-	Path    string            `yaml:"path"`
-	Headers map[string]string `yaml:"headers"`
-	Body    string            `yaml:"body"`
+	Method  string            `yaml:"method,omitempty"`
+	URL     string            `yaml:"url,omitempty"`
+	Path    string            `yaml:"path,omitempty"`
+	Headers map[string]string `yaml:"headers,omitempty"`
+	Body    string            `yaml:"body,omitempty"`
 }
 
 type DNSQuery struct {
-	Name   string `yaml:"name"`
-	Type   string `yaml:"type"`
-	Server string `yaml:"server"`
+	Name   string `yaml:"name,omitempty"`
+	Type   string `yaml:"type,omitempty"`
+	Server string `yaml:"server,omitempty"`
 }
 
 type TLSProbe struct {
-	Address    string `yaml:"address"`
-	ServerName string `yaml:"server_name"`
+	Address    string `yaml:"address,omitempty"`
+	ServerName string `yaml:"server_name,omitempty"`
 }
 
 type TCPProbe struct {
-	Address string `yaml:"address"`
+	Address string `yaml:"address,omitempty"`
 }
 
 type Expect struct {
-	Status               int      `yaml:"status"`
-	BodyContains         []string `yaml:"body_contains"`
-	BodyAbsent           []string `yaml:"body_absent"`
-	HeaderHas            []string `yaml:"header_contains"`
-	AnswerContains       []string `yaml:"answer_contains"`
-	AnswerAbsent         []string `yaml:"answer_absent"`
-	DaysRemainingAtLeast *int     `yaml:"days_remaining_at_least"`
+	Status               int      `yaml:"status,omitempty"`
+	BodyContains         []string `yaml:"body_contains,omitempty"`
+	BodyAbsent           []string `yaml:"body_absent,omitempty"`
+	HeaderHas            []string `yaml:"header_contains,omitempty"`
+	AnswerContains       []string `yaml:"answer_contains,omitempty"`
+	AnswerAbsent         []string `yaml:"answer_absent,omitempty"`
+	DaysRemainingAtLeast *int     `yaml:"days_remaining_at_least,omitempty"`
 }
 
 func Load(path string) (*Spec, error) {
@@ -77,18 +77,33 @@ func Load(path string) (*Spec, error) {
 		return nil, err
 	}
 
-	if len(s.Steps) == 0 {
-		return nil, fmt.Errorf("spec has no steps")
+	if err := Normalise(&s); err != nil {
+		return nil, err
 	}
+
+	return &s, nil
+}
+
+func Normalise(s *Spec) error {
+	if s == nil {
+		return fmt.Errorf("spec is nil")
+	}
+
+	if len(s.Steps) == 0 {
+		return fmt.Errorf("spec has no steps")
+	}
+
+	s.Name = strings.TrimSpace(s.Name)
+	s.BaseURL = strings.TrimSpace(s.BaseURL)
 
 	var base *url.URL
 	if strings.TrimSpace(s.BaseURL) != "" {
 		parsed, err := url.Parse(s.BaseURL)
 		if err != nil {
-			return nil, fmt.Errorf("invalid base_url: %w", err)
+			return fmt.Errorf("invalid base_url: %w", err)
 		}
 		if parsed.Scheme == "" || parsed.Host == "" {
-			return nil, fmt.Errorf("base_url must include scheme and host")
+			return fmt.Errorf("base_url must include scheme and host")
 		}
 		base = parsed
 	}
@@ -102,26 +117,102 @@ func Load(path string) (*Spec, error) {
 		switch s.Steps[i].Kind {
 		case KindHTTP:
 			if err := validateHTTP(base, &s.Steps[i]); err != nil {
-				return nil, err
+				return err
 			}
 		case KindDNS:
 			if err := validateDNS(&s.Steps[i]); err != nil {
-				return nil, err
+				return err
 			}
 		case KindTLS:
 			if err := validateTLS(&s.Steps[i]); err != nil {
-				return nil, err
+				return err
 			}
 		case KindTCP:
 			if err := validateTCP(&s.Steps[i]); err != nil {
-				return nil, err
+				return err
 			}
 		default:
-			return nil, fmt.Errorf("%s: unsupported kind %q", s.Steps[i].Name, s.Steps[i].Kind)
+			return fmt.Errorf("%s: unsupported kind %q", s.Steps[i].Name, s.Steps[i].Kind)
 		}
 	}
 
-	return &s, nil
+	return nil
+}
+
+func Marshal(s *Spec) ([]byte, error) {
+	if s == nil {
+		return nil, fmt.Errorf("spec is nil")
+	}
+
+	clone := cloneSpec(s)
+	for i := range clone.Steps {
+		if strings.TrimSpace(clone.Steps[i].Request.Path) != "" {
+			clone.Steps[i].Request.URL = ""
+		}
+	}
+
+	if err := Normalise(clone); err != nil {
+		return nil, err
+	}
+
+	type yamlStep struct {
+		Name    string    `yaml:"name,omitempty"`
+		Kind    string    `yaml:"kind"`
+		Request *Request  `yaml:"request,omitempty"`
+		DNS     *DNSQuery `yaml:"dns,omitempty"`
+		TLS     *TLSProbe `yaml:"tls,omitempty"`
+		TCP     *TCPProbe `yaml:"tcp,omitempty"`
+		Expect  *Expect   `yaml:"expect,omitempty"`
+	}
+
+	type yamlSpec struct {
+		Name    string     `yaml:"name,omitempty"`
+		BaseURL string     `yaml:"base_url,omitempty"`
+		Steps   []yamlStep `yaml:"steps"`
+	}
+
+	out := yamlSpec{
+		Name:    clone.Name,
+		BaseURL: clone.BaseURL,
+		Steps:   make([]yamlStep, 0, len(clone.Steps)),
+	}
+
+	for i, step := range clone.Steps {
+		yamlStep := yamlStep{
+			Name: step.Name,
+			Kind: normalizeKind(step.Kind),
+		}
+
+		switch yamlStep.Kind {
+		case KindDNS:
+			dns := step.DNS
+			yamlStep.DNS = &dns
+		case KindTLS:
+			tls := step.TLS
+			yamlStep.TLS = &tls
+		case KindTCP:
+			tcp := step.TCP
+			yamlStep.TCP = &tcp
+		default:
+			req := step.Request
+			if strings.TrimSpace(s.Steps[i].Request.Path) != "" {
+				req.URL = ""
+				req.Path = strings.TrimSpace(s.Steps[i].Request.Path)
+			} else {
+				req.Path = ""
+			}
+			yamlStep.Request = &req
+		}
+
+		if hasExpect(step.Expect) {
+			expect := step.Expect
+			yamlStep.Expect = &expect
+		}
+
+		out.Steps = append(out.Steps, yamlStep)
+	}
+
+	return yaml.Marshal(&out)
 }
 
 func normalizeKind(kind string) string {
@@ -256,4 +347,65 @@ func normalizeAddress(address string, defaultPort string) (string, error) {
 	}
 
 	return net.JoinHostPort(host, defaultPort), nil
+}
+
+func hasExpect(expect Expect) bool {
+	return expect.Status != 0 ||
+		len(expect.BodyContains) > 0 ||
+		len(expect.BodyAbsent) > 0 ||
+		len(expect.HeaderHas) > 0 ||
+		len(expect.AnswerContains) > 0 ||
+		len(expect.AnswerAbsent) > 0 ||
+		expect.DaysRemainingAtLeast != nil
+}
+
+func cloneSpec(s *Spec) *Spec {
+	if s == nil {
+		return nil
+	}
+
+	clone := &Spec{
+		Name:    s.Name,
+		BaseURL: s.BaseURL,
+		Steps:   make([]Step, len(s.Steps)),
+	}
+
+	for i, step := range s.Steps {
+		clone.Steps[i] = Step{
+			Name: step.Name,
+			Kind: step.Kind,
+			Request: Request{
+				Method: step.Request.Method,
+				URL:    step.Request.URL,
+				Path:   step.Request.Path,
+				Body:   step.Request.Body,
+			},
+			DNS: step.DNS,
+			TLS: step.TLS,
+			TCP: step.TCP,
+			Expect: Expect{
+				Status:               step.Expect.Status,
+				DaysRemainingAtLeast: step.Expect.DaysRemainingAtLeast,
+			},
+		}
+
+		if len(step.Request.Headers) > 0 {
+			clone.Steps[i].Request.Headers = make(map[string]string, len(step.Request.Headers))
+			for k, v := range step.Request.Headers {
+				clone.Steps[i].Request.Headers[k] = v
+			}
+		}
+
+		clone.Steps[i].Expect.BodyContains = append([]string(nil), step.Expect.BodyContains...)
+		clone.Steps[i].Expect.BodyAbsent = append([]string(nil), step.Expect.BodyAbsent...)
+		clone.Steps[i].Expect.HeaderHas = append([]string(nil), step.Expect.HeaderHas...)
+		clone.Steps[i].Expect.AnswerContains = append([]string(nil), step.Expect.AnswerContains...)
+		clone.Steps[i].Expect.AnswerAbsent = append([]string(nil), step.Expect.AnswerAbsent...)
+		if step.Expect.DaysRemainingAtLeast != nil {
+			days := *step.Expect.DaysRemainingAtLeast
+			clone.Steps[i].Expect.DaysRemainingAtLeast = &days
+		}
+	}
+
+	return clone
 }

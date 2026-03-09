@@ -17,7 +17,7 @@ Current direction:
 - shell-style ad hoc HTTP checks with flags
 - HTTP, DNS, TLS, and TCP step kinds
 - Script-friendly CLI execution
-- Bubble Tea TUI for interactive config generation and runs
+- Bubble Tea TUI for multi-step spec editing, YAML preview, save, and runs
 - GoReleaser-based binary packaging
 
 ### Install
@@ -63,6 +63,8 @@ Current command surface:
 ```
 
 Quick CLI mode is intended to feel more like the original Bash script: pass a target and optional assertion flags, and it performs a default HTTP smoke check without requiring YAML first.
+
+`./bin/smoke tui` now opens a multi-step builder. It can compose HTTP, DNS, TLS, and TCP steps, shows a live YAML preview, saves to a path you choose with `s`, runs the generated spec with `r`, and lets you return from the run view back to the builder with `b`.
 
 Historical repo checks still map directly into quick mode:
 

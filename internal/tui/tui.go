@@ -30,9 +30,10 @@ type stepFinishedMsg struct {
 }
 
 type model struct {
-	spec     *spec.Spec
-	specPath string
-	runner   *runner.Runner
+	spec          *spec.Spec
+	specPath      string
+	runner        *runner.Runner
+	backToBuilder *builderModel
 
 	width  int
 	height int
@@ -132,6 +133,17 @@ func (m model) updateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "ctrl+c", "q", "esc":
 		return m, tea.Quit
+	case "b", "e":
+		if m.backToBuilder != nil {
+			back := *m.backToBuilder
+			back.width = m.width
+			back.height = m.height
+			back.statusText = "Returned from run view"
+			back.help = false
+			back.editing = false
+			return back, nil
+		}
+		return m, nil
 	case "?":
 		m.help = !m.help
 		return m, nil
@@ -251,6 +263,9 @@ func (m model) headerText() string {
 
 func (m model) statusBarText() string {
 	hints := "j/k move  enter rerun step  R rerun all  ? help  q quit"
+	if m.backToBuilder != nil {
+		hints = "j/k move  enter rerun step  R rerun all  b builder  ? help  q quit"
+	}
 	if strings.TrimSpace(m.statusText) == "" {
 		return hints
 	}
@@ -451,7 +466,7 @@ func formatExpect(expect spec.Expect) []string {
 }
 
 func (m model) helpPanel() string {
-	content := strings.Join([]string{
+	lines := []string{
 		"smoke",
 		"",
 		"j / k or arrows : move selection",
@@ -462,7 +477,14 @@ func (m model) helpPanel() string {
 		"",
 		"The left pane tracks step status and timings.",
 		"The right pane shows request, expectations, and last response details.",
-	}, "\n")
+	}
+	if m.backToBuilder != nil {
+		lines = append(lines,
+			"",
+			"b / e           : return to the builder",
+		)
+	}
+	content := strings.Join(lines, "\n")
 
 	panelWidth := minInt(maxInt(56, m.width/2), maxInt(56, m.width-4))
 	if panelWidth > m.width {

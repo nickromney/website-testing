@@ -49,12 +49,13 @@ command exits non-zero if any step fails or if the spec cannot be loaded.`
 	tuiLong = `TUI has two modes:
 
   - with SPEC: inspect and rerun an existing YAML smoke spec
-  - without SPEC: interactively build a one-step HTTP smoke check, then run it
+  - without SPEC: interactively build a multi-step smoke spec, save it, then run it
 
-The builder mode is intended to replace the "edit a shell script by hand"
-workflow for simple checks.`
+The builder mode can compose HTTP, DNS, TLS, and TCP steps, shows a live YAML
+preview, and lets you return from the run view back to the editor.`
 
 	tuiExample = `  smoke tui
+  smoke tui      # add steps, edit fields, save with s, run with r
   smoke tui examples/network.yaml
   smoke tui prod.yaml --timeout 15s`
 )
