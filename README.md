@@ -24,6 +24,22 @@ Current direction:
 
 Tagged releases are intended to publish binaries to GitHub Releases via GoReleaser. Until a release is cut, build from source.
 
+### Quickstart
+
+Build locally:
+
+```bash
+make build
+./bin/smoke --help
+```
+
+On macOS, an unsigned downloaded binary may be quarantined on first launch. If that happens, remove the quarantine xattr and retry:
+
+```bash
+xattr -d com.apple.quarantine ./smoke
+./smoke --help
+```
+
 ### Build From Source
 
 ```bash
