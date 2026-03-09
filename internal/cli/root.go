@@ -273,6 +273,7 @@ func runSpecDocument(cmd *cobra.Command, source string, specDoc *spec.Spec, time
 	if err != nil {
 		return fmt.Errorf("runner init failed: %w", err)
 	}
+	palette := newHumanPalette(cmd.OutOrStdout())
 
 	output := runOutput{
 		Spec:    source,
@@ -304,7 +305,7 @@ func runSpecDocument(cmd *cobra.Command, source string, specDoc *spec.Spec, time
 
 		fmt.Fprintf(cmd.OutOrStdout(), "> %s\n", humanStepHeading(res))
 		for _, check := range checks {
-			fmt.Fprintf(cmd.OutOrStdout(), "    %s %s\n", humanCheckStatus(check.Passed), check.Text)
+			fmt.Fprintf(cmd.OutOrStdout(), "    %s %s\n", palette.checkStatus(check.Passed), check.Text)
 		}
 	}
 
@@ -316,11 +317,7 @@ func runSpecDocument(cmd *cobra.Command, source string, specDoc *spec.Spec, time
 			return err
 		}
 	} else {
-		if failedChecks > 0 {
-			fmt.Fprintf(cmd.OutOrStdout(), "FAIL (%d/%d)\n", failedChecks, totalChecks)
-		} else {
-			fmt.Fprintf(cmd.OutOrStdout(), "OK (%d/%d)\n", totalChecks, totalChecks)
-		}
+		fmt.Fprintf(cmd.OutOrStdout(), "%s\n", palette.summary(totalChecks, failedChecks))
 	}
 
 	if !output.Passed {
@@ -534,13 +531,6 @@ func humanStepHeading(res runner.Result) string {
 	default:
 		return res.Step.Request.URL
 	}
-}
-
-func humanCheckStatus(passed bool) string {
-	if passed {
-		return "[ OK ]"
-	}
-	return "[FAIL]"
 }
 
 func humanBodyChecks(expect spec.Expect, body string) []humanCheck {

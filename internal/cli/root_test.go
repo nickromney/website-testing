@@ -177,3 +177,58 @@ func TestRunCommandLegacyStyleSummary(t *testing.T) {
 		t.Fatalf("expected legacy-style summary, got %q", out)
 	}
 }
+
+func TestRootQuickTargetUsesColorWhenForced(t *testing.T) {
+	t.Setenv("CLICOLOR_FORCE", "1")
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("hello quick smoke"))
+	}))
+	t.Cleanup(srv.Close)
+
+	cmd := NewRootCmd(BuildInfo{Version: "test"})
+	var stdout bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stdout)
+	cmd.SetArgs([]string{srv.URL, "--body-contains", "hello"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute() err = %v", err)
+	}
+
+	out := stdout.String()
+	if !strings.Contains(out, "[ \x1b[1;32mOK\x1b[0m ]") {
+		t.Fatalf("expected colored OK label, got %q", out)
+	}
+	if !strings.Contains(out, "\x1b[42mOK (2/2)\x1b[0m") {
+		t.Fatalf("expected green summary background, got %q", out)
+	}
+}
+
+func TestRootQuickTargetNoColorDisablesAutoColor(t *testing.T) {
+	t.Setenv("NO_COLOR", "1")
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("hello quick smoke"))
+	}))
+	t.Cleanup(srv.Close)
+
+	cmd := NewRootCmd(BuildInfo{Version: "test"})
+	var stdout bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stdout)
+	cmd.SetArgs([]string{srv.URL, "--body-contains", "hello"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute() err = %v", err)
+	}
+
+	out := stdout.String()
+	if strings.Contains(out, "\x1b[") {
+		t.Fatalf("expected plain output when NO_COLOR is set, got %q", out)
+	}
+}
