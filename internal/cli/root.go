@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -288,14 +289,8 @@ func runSpecDocument(cmd *cobra.Command, source string, specDoc *spec.Spec, time
 		}
 
 		fmt.Fprintf(cmd.OutOrStdout(), "> %s\n", step.Name)
-		if res.Passed {
-			fmt.Fprintf(cmd.OutOrStdout(), "  OK (%s)\n", humanSummary(res))
-			continue
-		}
-
-		fmt.Fprintf(cmd.OutOrStdout(), "  FAIL (%s)\n", humanSummary(res))
-		for _, e := range res.Errors {
-			fmt.Fprintf(cmd.OutOrStdout(), "    - %s\n", e)
+		for _, line := range humanResultLines(res) {
+			fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", line)
 		}
 	}
 
@@ -388,18 +383,107 @@ func toResultOutput(res runner.Result) resultOutput {
 	return out
 }
 
-func humanSummary(res runner.Result) string {
+func humanResultLines(res runner.Result) []string {
+	lines := []string{humanTransportLine(res)}
+	if len(res.Errors) == 0 {
+		return lines
+	}
+
+	for _, err := range res.Errors {
+		lines = append(lines, "FAIL - "+humanizeResultError(res, err))
+	}
+	return lines
+}
+
+func humanTransportLine(res runner.Result) string {
 	duration := res.Duration.Round(time.Millisecond)
 	switch res.Kind {
 	case spec.KindDNS:
-		return fmt.Sprintf("%d answer(s), %s", len(res.DNSAnswers), duration)
+		if len(res.Errors) > 0 && len(res.DNSAnswers) == 0 {
+			return fmt.Sprintf("FAIL - DNS %s %s - %s", strings.ToUpper(res.DNSRecordType), res.DNSName, humanizeResultError(res, res.Errors[0]))
+		}
+		return fmt.Sprintf("PASS - DNS %s %s - resolved %d answer(s) in %s", strings.ToUpper(res.DNSRecordType), res.DNSName, len(res.DNSAnswers), duration)
 	case spec.KindTLS:
-		return fmt.Sprintf("%d day(s) remaining, %s", res.TLSDaysRemaining, duration)
+		if len(res.Errors) > 0 && res.TLSNotAfter.IsZero() {
+			return fmt.Sprintf("FAIL - TLS %s - %s", tlsDisplayTarget(res), humanizeResultError(res, res.Errors[0]))
+		}
+		return fmt.Sprintf("PASS - TLS %s - handshake succeeded in %s", tlsDisplayTarget(res), duration)
 	case spec.KindTCP:
-		return fmt.Sprintf("%s, %s", res.TCPAddress, duration)
+		if len(res.Errors) > 0 && len(res.Body) == 0 {
+			return fmt.Sprintf("FAIL - TCP %s - %s", res.TCPAddress, humanizeResultError(res, res.Errors[0]))
+		}
+		return fmt.Sprintf("PASS - TCP %s - connected in %s", res.TCPAddress, duration)
 	default:
-		return fmt.Sprintf("%d, %s", res.StatusCode, duration)
+		if len(res.Errors) > 0 && res.StatusCode == 0 {
+			return fmt.Sprintf("FAIL - HTTP %s - %s", httpDisplayTarget(res), humanizeResultError(res, res.Errors[0]))
+		}
+		return httpSuccessLine(res, duration)
 	}
+}
+
+func humanizeResultError(res runner.Result, err string) string {
+	switch {
+	case strings.HasPrefix(err, "expected body to contain "):
+		needle := strings.TrimPrefix(err, "expected body to contain ")
+		return fmt.Sprintf("body does not contain the string %s", needle)
+	case strings.HasPrefix(err, "expected body to NOT contain "):
+		needle := strings.TrimPrefix(err, "expected body to NOT contain ")
+		return fmt.Sprintf("body unexpectedly contains the string %s", needle)
+	case strings.HasPrefix(err, "expected headers to contain "):
+		needle := strings.TrimPrefix(err, "expected headers to contain ")
+		return fmt.Sprintf("headers do not contain the string %s", needle)
+	case strings.HasPrefix(err, "expected answers to contain "):
+		needle := strings.TrimPrefix(err, "expected answers to contain ")
+		return fmt.Sprintf("DNS answers do not contain the string %s", needle)
+	case strings.HasPrefix(err, "expected answers to NOT contain "):
+		needle := strings.TrimPrefix(err, "expected answers to NOT contain ")
+		return fmt.Sprintf("DNS answers unexpectedly contain the string %s", needle)
+	case strings.HasPrefix(err, "expected status "):
+		var expected, got int
+		if _, scanErr := fmt.Sscanf(err, "expected status %d, got %d", &expected, &got); scanErr == nil {
+			return fmt.Sprintf("expected HTTP %d, got HTTP %d", expected, got)
+		}
+	case strings.HasPrefix(err, "expected days remaining >= "):
+		var minimum, got int
+		if _, scanErr := fmt.Sscanf(err, "expected days remaining >= %d, got %d", &minimum, &got); scanErr == nil {
+			return fmt.Sprintf("certificate expires too soon: %d day(s) remaining, need at least %d", got, minimum)
+		}
+	}
+
+	return err
+}
+
+func httpDisplayTarget(res runner.Result) string {
+	parsed, err := url.Parse(res.Step.Request.URL)
+	if err != nil || parsed.Host == "" {
+		if strings.TrimSpace(res.Step.Request.URL) != "" {
+			return res.Step.Request.URL
+		}
+		return "target"
+	}
+	if parsed.Path == "" || parsed.Path == "/" {
+		return parsed.Host
+	}
+	return parsed.String()
+}
+
+func httpSuccessLine(res runner.Result, duration time.Duration) string {
+	target := httpDisplayTarget(res)
+	parsed, err := url.Parse(res.Step.Request.URL)
+	if err == nil && parsed.Host != "" && (parsed.Path == "" || parsed.Path == "/") {
+		return fmt.Sprintf("PASS - HTTP %d - %s is up (%s)", res.StatusCode, target, duration)
+	}
+	return fmt.Sprintf("PASS - HTTP %d - %s responded in %s", res.StatusCode, target, duration)
+}
+
+func tlsDisplayTarget(res runner.Result) string {
+	if strings.TrimSpace(res.TLSServerName) != "" {
+		return res.TLSServerName
+	}
+	if strings.TrimSpace(res.TLSAddress) != "" {
+		return res.TLSAddress
+	}
+	return "target"
 }
 
 func isInteractiveTTY() bool {

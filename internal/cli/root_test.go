@@ -70,7 +70,41 @@ func TestRootQuickTarget(t *testing.T) {
 	}
 
 	out := stdout.String()
-	if !strings.Contains(out, "OK") {
-		t.Fatalf("expected OK output, got %q", out)
+	if !strings.Contains(out, "PASS - HTTP 200") {
+		t.Fatalf("expected PASS output, got %q", out)
+	}
+	if !strings.Contains(out, "is up") {
+		t.Fatalf("expected response summary, got %q", out)
+	}
+}
+
+func TestRootQuickTargetAssertionFailureSeparatesHTTPStatus(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("hello quick smoke"))
+	}))
+	t.Cleanup(srv.Close)
+
+	cmd := NewRootCmd(BuildInfo{Version: "test"})
+	var stdout bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stdout)
+	cmd.SetArgs([]string{srv.URL, "--body-contains", "bananas"})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected Execute() to fail")
+	}
+	if got := err.Error(); got != "one or more steps failed" {
+		t.Fatalf("unexpected error %q", got)
+	}
+
+	out := stdout.String()
+	if !strings.Contains(out, "PASS - HTTP 200") {
+		t.Fatalf("expected HTTP success line, got %q", out)
+	}
+	if !strings.Contains(out, `FAIL - body does not contain the string "bananas"`) {
+		t.Fatalf("expected assertion failure line, got %q", out)
 	}
 }
