@@ -219,13 +219,17 @@ PY
   make_curl_mock $'HTTP/1.1 200 OK\n' "ok"
   make_telnet_mock "Connected"
   mock_passthrough_command "grep" "/usr/bin/grep"
+  mock_passthrough_command "cat" "/bin/cat"
 
   source "${BATS_TEST_DIRNAME}/../smoke.sh"
 
-  PATH="$MOCK_BIN_DIR:/bin"
+  original_path="$PATH"
+  ln -sf "$(command -v bash)" "$MOCK_BIN_DIR/bash"
+  PATH="$MOCK_BIN_DIR"
   smoke_tcp_ok "example.test" 443
 
   run smoke_response_body
+  PATH="$original_path"
   [ "$status" -eq 0 ]
   [[ "$output" == *"Connected"* ]]
   assert_mock_called "telnet" "example.test 443"
