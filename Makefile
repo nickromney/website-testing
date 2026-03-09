@@ -6,7 +6,7 @@
 # non-login shell. Harmless on non-Homebrew systems.
 export PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
 
-BINARY_NAME := smoke-go
+BINARY_NAME := smoke
 VERSION ?= dev
 BUILD_TIME := $(shell date -u '+%Y-%m-%d_%H:%M:%S')
 GIT_COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
@@ -20,11 +20,11 @@ LDFLAGS := -ldflags "-w -s -X main.Version=$(VERSION) -X main.BuildTime=$(BUILD_
 
 all: test build ## Run tests then build
 
-build: ## Build smoke-go for the current platform
+build: ## Build smoke for the current platform
 	@mkdir -p bin
 	CGO_ENABLED=0 $(GOBUILD) $(BUILDFLAGS) $(LDFLAGS) -o bin/$(BINARY_NAME) ./cmd/smoke-go
 
-build-all: ## Cross-compile smoke-go for common release targets
+build-all: ## Cross-compile smoke for common release targets
 	@mkdir -p bin
 	CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 $(GOBUILD) $(BUILDFLAGS) $(LDFLAGS) -o bin/$(BINARY_NAME)-darwin-amd64 ./cmd/smoke-go
 	CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 $(GOBUILD) $(BUILDFLAGS) $(LDFLAGS) -o bin/$(BINARY_NAME)-darwin-arm64 ./cmd/smoke-go

@@ -196,7 +196,7 @@ func (m model) rerunAll() (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	if m.width == 0 || m.height == 0 {
-		return "Loading smoke-go..."
+		return "Loading smoke..."
 	}
 
 	header := titleStyle.Width(m.width).Render(m.headerText())
@@ -240,7 +240,7 @@ func (m model) headerText() string {
 		state = "failed"
 	}
 
-	return fmt.Sprintf("smoke-go  %s  [%s]  pass:%d fail:%d pending:%d",
+	return fmt.Sprintf("smoke  %s  [%s]  pass:%d fail:%d pending:%d",
 		name,
 		state,
 		m.passedCount(),
@@ -452,7 +452,7 @@ func formatExpect(expect spec.Expect) []string {
 
 func (m model) helpPanel() string {
 	content := strings.Join([]string{
-		"smoke-go",
+		"smoke",
 		"",
 		"j / k or arrows : move selection",
 		"enter / r       : rerun selected step",

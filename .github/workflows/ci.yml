@@ -74,7 +74,7 @@ jobs:
           go install golang.org/x/vuln/cmd/govulncheck@latest
           "$(go env GOPATH)/bin/govulncheck" ./...
 
-      - name: Cross-compile smoke-go
+      - name: Cross-compile smoke
         env:
           CGO_ENABLED: 0
         run: |

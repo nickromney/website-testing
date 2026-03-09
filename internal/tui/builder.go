@@ -124,10 +124,10 @@ func (m builderModel) updateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 func (m builderModel) View() string {
 	if m.width == 0 || m.height == 0 {
-		return "Loading smoke-go..."
+		return "Loading smoke..."
 	}
 
-	header := titleStyle.Width(m.width).Render("smoke-go builder  configure a quick HTTP smoke check")
+	header := titleStyle.Width(m.width).Render("smoke builder  configure a quick HTTP smoke check")
 	statusBar := statusBarStyle.Width(m.width).Render("enter edit  r run  q quit  |  " + m.statusText)
 	bodyHeight := maxInt(1, m.height-2)
 	formWidth := maxInt(32, minInt(44, m.width/2))

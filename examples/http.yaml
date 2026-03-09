@@ -6,7 +6,7 @@ steps:
     request:
       path: /
       headers:
-        User-Agent: smoke-go/example
+        User-Agent: smoke/example
     expect:
       status: 200
       body_contains:

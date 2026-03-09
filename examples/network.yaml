@@ -7,7 +7,7 @@ steps:
       method: GET
       url: https://example.com/
       headers:
-        User-Agent: smoke-go/example
+        User-Agent: smoke/example
     expect:
       status: 200
       body_contains:

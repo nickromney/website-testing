@@ -2,16 +2,16 @@
 
 version: 2
 
-project_name: smoke-go
+project_name: smoke
 
 before:
   hooks:
     - go test ./...
 
 builds:
-  - id: smoke-go
+  - id: smoke
     main: ./cmd/smoke-go
-    binary: smoke-go
+    binary: smoke
     env:
       - CGO_ENABLED=0
     goos:
@@ -29,7 +29,7 @@ builds:
         -X main.GitCommit={{ .Commit }}
 
 archives:
-  - id: smoke-go-archive
+  - id: smoke-archive
     name_template: >-
       {{- .ProjectName }}_
       {{- .Version }}_

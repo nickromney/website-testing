@@ -2,14 +2,14 @@
 
 This repository now has two layers:
 
-- `smoke-go`: the active Go CLI/TUI experiment for HTTP smoke checks.
+- `smoke`: the active Go CLI/TUI experiment for HTTP smoke checks.
 - `smoke.sh`: the original Bash helper library kept for legacy context and parity work.
 
 The Go path is the primary direction. The Bash scripts still ship, still have test coverage, and still document the historical API, but they are no longer the center of the repo.
 
-## smoke-go
+## smoke
 
-`smoke-go` is the modern runner in this repository. It aims to make website smoke tests easier to run locally, easier to package, and easier to evolve into a richer TUI-driven workflow.
+`smoke` is the modern runner in this repository. It aims to make website smoke tests easier to run locally, easier to package, and easier to evolve into a richer TUI-driven workflow.
 
 Current direction:
 
@@ -28,7 +28,7 @@ Tagged releases are intended to publish binaries to GitHub Releases via GoReleas
 
 ```bash
 make build
-./bin/smoke-go --help
+./bin/smoke --help
 ```
 
 ### Run
@@ -36,14 +36,14 @@ make build
 Current command surface:
 
 ```bash
-./bin/smoke-go google.com
-./bin/smoke-go https://example.com/health --status 200 --body-contains Example
-./bin/smoke-go http://localhost:3000 --header "Host: example.test"
-./bin/smoke-go run path/to/spec.yaml
-./bin/smoke-go run path/to/spec.yaml --json
-./bin/smoke-go tui
-./bin/smoke-go tui path/to/spec.yaml
-./bin/smoke-go version
+./bin/smoke google.com
+./bin/smoke https://example.com/health --status 200 --body-contains Example
+./bin/smoke http://localhost:3000 --header "Host: example.test"
+./bin/smoke run path/to/spec.yaml
+./bin/smoke run path/to/spec.yaml --json
+./bin/smoke tui
+./bin/smoke tui path/to/spec.yaml
+./bin/smoke version
 ```
 
 Quick CLI mode is intended to feel more like the original Bash script: pass a target and optional assertion flags, and it performs a default HTTP smoke check without requiring YAML first.
@@ -51,8 +51,8 @@ Quick CLI mode is intended to feel more like the original Bash script: pass a ta
 Historical repo checks still map directly into quick mode:
 
 ```bash
-./bin/smoke-go google.com
-./bin/smoke-go https://www.theregister.com/security --body-absent "Sorry, this page doesn't exist!"
+./bin/smoke google.com
+./bin/smoke https://www.theregister.com/security --body-absent "Sorry, this page doesn't exist!"
 ```
 
 ### Sample Spec
@@ -79,7 +79,7 @@ steps:
       method: GET
       url: https://example.org/
       headers:
-        User-Agent: smoke-go
+        User-Agent: smoke
     expect:
       status: 200
       body_contains:
@@ -152,4 +152,4 @@ The Bash helper still supports:
 - SSL expiry checks
 - CSRF token substitution
 
-If you are touching the Bash path, keep it working. If you are investing in new product direction, do it in `smoke-go`.
+If you are touching the Bash path, keep it working. If you are investing in new product direction, do it in `smoke`.

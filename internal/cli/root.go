@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	rootLong = `smoke-go has two modes:
+	rootLong = `smoke has two modes:
 
   1. Shell-style ad hoc checks:
      pass a target plus flags and it behaves like a simple smoke script.
-     Example: smoke-go google.com
+     Example: smoke google.com
 
   2. Config-driven checks:
      run a YAML spec for HTTP, DNS, TLS, and TCP steps, or launch the TUI.
@@ -29,22 +29,22 @@ const (
 Bare targets default to HTTPS, perform a GET request, and expect a 200
 response unless you override that with flags.`
 
-	rootExample = `  smoke-go google.com
-  smoke-go https://example.com/health --status 200 --body-contains Example
-  smoke-go http://localhost:3000 --header "Host: example.test"
-  smoke-go run examples/network.yaml --json
-  smoke-go tui
-  smoke-go tui examples/network.yaml`
+	rootExample = `  smoke google.com
+  smoke https://example.com/health --status 200 --body-contains Example
+  smoke http://localhost:3000 --header "Host: example.test"
+  smoke run examples/network.yaml --json
+  smoke tui
+  smoke tui examples/network.yaml`
 
 	runLong = `Run executes every step in a YAML smoke spec and prints a human summary.
 
 Use --json when you want a machine-readable result object for automation. The
 command exits non-zero if any step fails or if the spec cannot be loaded.`
 
-	runExample = `  smoke-go run examples/http.yaml
-  smoke-go run examples/network.yaml
-  smoke-go run examples/network.yaml --json
-  smoke-go run prod.yaml --timeout 15s`
+	runExample = `  smoke run examples/http.yaml
+  smoke run examples/network.yaml
+  smoke run examples/network.yaml --json
+  smoke run prod.yaml --timeout 15s`
 
 	tuiLong = `TUI has two modes:
 
@@ -54,9 +54,9 @@ command exits non-zero if any step fails or if the spec cannot be loaded.`
 The builder mode is intended to replace the "edit a shell script by hand"
 workflow for simple checks.`
 
-	tuiExample = `  smoke-go tui
-  smoke-go tui examples/network.yaml
-  smoke-go tui prod.yaml --timeout 15s`
+	tuiExample = `  smoke tui
+  smoke tui examples/network.yaml
+  smoke tui prod.yaml --timeout 15s`
 )
 
 type BuildInfo struct {
@@ -116,7 +116,7 @@ func NewRootCmd(buildInfo BuildInfo) *cobra.Command {
 	opts := quickOptions{}
 
 	root := &cobra.Command{
-		Use:           "smoke-go [TARGET]",
+		Use:           "smoke [TARGET]",
 		Short:         "Shell-style smoke checks plus YAML/TUI workflows",
 		Long:          rootLong,
 		Example:       rootExample,
@@ -163,7 +163,7 @@ func NewRootCmd(buildInfo BuildInfo) *cobra.Command {
 	}
 
 	root.Version = buildInfo.Version + "\nbuild_time: " + buildInfo.BuildTime + "\ngit_commit: " + buildInfo.GitCommit
-	root.SetVersionTemplate("smoke-go {{.Version}}\n")
+	root.SetVersionTemplate("smoke {{.Version}}\n")
 	root.Flags().DurationVar(&opts.timeout, "timeout", 30*time.Second, "Per-step network timeout")
 	root.Flags().BoolVar(&opts.jsonOut, "json", false, "Emit machine-readable JSON to stdout")
 	root.Flags().StringVar(&opts.method, "method", "GET", "HTTP method for ad hoc target mode")
@@ -261,7 +261,7 @@ func buildVersionCmd(buildInfo BuildInfo) *cobra.Command {
 		Short: "Show build information",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Fprintf(cmd.OutOrStdout(), "smoke-go %s\n", buildInfo.Version)
+			fmt.Fprintf(cmd.OutOrStdout(), "smoke %s\n", buildInfo.Version)
 			fmt.Fprintf(cmd.OutOrStdout(), "build_time: %s\n", buildInfo.BuildTime)
 			fmt.Fprintf(cmd.OutOrStdout(), "git_commit: %s\n", buildInfo.GitCommit)
 		},
