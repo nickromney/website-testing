@@ -38,6 +38,7 @@ Current command surface:
 ```bash
 ./bin/smoke-go google.com
 ./bin/smoke-go https://example.com/health --status 200 --body-contains Example
+./bin/smoke-go http://localhost:3000 --header "Host: example.test"
 ./bin/smoke-go run path/to/spec.yaml
 ./bin/smoke-go run path/to/spec.yaml --json
 ./bin/smoke-go tui
@@ -46,6 +47,13 @@ Current command surface:
 ```
 
 Quick CLI mode is intended to feel more like the original Bash script: pass a target and optional assertion flags, and it performs a default HTTP smoke check without requiring YAML first.
+
+Historical repo checks still map directly into quick mode:
+
+```bash
+./bin/smoke-go google.com
+./bin/smoke-go https://www.theregister.com/security --body-absent "Sorry, this page doesn't exist!"
+```
 
 ### Sample Spec
 

@@ -21,7 +21,7 @@ const (
 
   1. Shell-style ad hoc checks:
      pass a target plus flags and it behaves like a simple smoke script.
-     Example: smoke-go google.com --status 200 --body-contains "Search"
+     Example: smoke-go google.com
 
   2. Config-driven checks:
      run a YAML spec for HTTP, DNS, TLS, and TCP steps, or launch the TUI.
