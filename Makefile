@@ -1,4 +1,4 @@
-.PHONY: all build build-all clean test test-go test-bash test-cover cover-html vet lint vuln fmt precommit help
+.PHONY: all build build-all clean test test-go test-bash test-cover cover-html vet lint vuln fmt precommit hooks help
 
 .DEFAULT_GOAL := help
 
@@ -68,6 +68,9 @@ fmt: ## Format Go code and tidy modules
 
 precommit: ## Run repository pre-commit hooks
 	pre-commit run -a
+
+hooks: ## Install lefthook git hooks
+	lefthook install
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
