@@ -1,0 +1,14 @@
+pre-commit:
+  parallel: true
+  commands:
+    shellcheck:
+      glob: "{*.sh,smoke-*,_test/**/*.{sh,bash,bats}}"
+      run: scripts/hooks/check-staged-shell.sh --execute {staged_files}
+    yamllint:
+      glob: "*.{yaml,yml}"
+      run: scripts/hooks/check-staged-yaml.sh --execute {staged_files}
+
+pre-push:
+  commands:
+    local-ci:
+      run: scripts/hooks/run-local-ci.sh --execute

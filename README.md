@@ -139,7 +139,32 @@ make vuln
 make precommit
 ```
 
-The GitHub Actions checks keep both the legacy Bash surface and the Go experiment under test.
+### Local Validation
+
+Install local hooks:
+
+```bash
+make hooks
+# or: lefthook install
+```
+
+The pre-commit hook runs fast staged-file checks. The pre-push hook runs the same validation that CI used to run automatically.
+
+Skip hooks only when needed:
+
+```bash
+LEFTHOOK=0 git commit ...
+LEFTHOOK=0 git push
+git commit --no-verify
+git push --no-verify
+```
+
+GitHub Actions CI is now on-demand:
+
+```bash
+gh workflow run ci.yml
+gh workflow run release.yml
+```
 
 ## Legacy Bash Library
 
