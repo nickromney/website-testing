@@ -16,7 +16,7 @@ fi
 yaml_files=()
 for file in "$@"; do
   case "${file}" in
-    *.yaml|*.yml)
+    *.yaml | *.yml)
       yaml_files+=("${file}")
       ;;
   esac
@@ -27,7 +27,7 @@ if [[ "${#yaml_files[@]}" -eq 0 ]]; then
   exit 0
 fi
 
-if ! command -v yamllint >/dev/null 2>&1; then
+if ! command -v yamllint > /dev/null 2>&1; then
   hook_warn "yamllint not found in PATH; skipping staged YAML lint"
   exit 0
 fi
