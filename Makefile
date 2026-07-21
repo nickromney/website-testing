@@ -2,9 +2,13 @@
 
 .DEFAULT_GOAL := help
 
-# Ensure Homebrew-installed tools are available when `make` runs under a
-# non-login shell. Harmless on non-Homebrew systems.
-export PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
+# Ensure Go- and Homebrew-installed tools are available when `make` runs under
+# a non-login shell. Harmless when either location is absent.
+GO_BIN := $(shell go env GOBIN)
+ifeq ($(strip $(GO_BIN)),)
+GO_BIN := $(shell go env GOPATH)/bin
+endif
+export PATH := $(GO_BIN):/opt/homebrew/bin:/usr/local/bin:$(PATH)
 
 BINARY_NAME := smoke
 VERSION ?= dev
@@ -55,8 +59,8 @@ vet: ## Run go vet
 	$(GOVET) ./...
 
 lint: ## Run golangci-lint (installs if missing)
-	@which golangci-lint >/dev/null || (echo "Installing golangci-lint..." && $(GOCMD) install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)
-	golangci-lint run ./...
+	@$(GO_BIN)/golangci-lint version 2>/dev/null | grep -q 'version 2\.' || (echo "Installing golangci-lint v2..." && $(GOCMD) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest)
+	$(GO_BIN)/golangci-lint run ./...
 
 vuln: ## Run govulncheck (installs if missing)
 	@which govulncheck >/dev/null || (echo "Installing govulncheck..." && $(GOCMD) install golang.org/x/vuln/cmd/govulncheck@latest)
