@@ -16,7 +16,7 @@ fi
 shell_files=()
 for file in "$@"; do
   case "${file}" in
-    *.sh|smoke-*|_test/*.bash|_test/*.bats)
+    *.sh | smoke-* | _test/*.bash | _test/*.bats)
       shell_files+=("${file}")
       ;;
   esac
@@ -27,7 +27,7 @@ if [[ "${#shell_files[@]}" -eq 0 ]]; then
   exit 0
 fi
 
-if ! command -v shellcheck >/dev/null 2>&1; then
+if ! command -v shellcheck > /dev/null 2>&1; then
   hook_fail "shellcheck not found in PATH; install shellcheck or unstage shell files"
   exit 1
 fi

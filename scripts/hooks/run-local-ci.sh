@@ -19,7 +19,7 @@ fi
 
 cd "${HOOKS_REPO_ROOT}"
 
-cat <<'EOF'
+cat << 'EOF'
 website-testing pre-push local CI gate
 
 Running:
