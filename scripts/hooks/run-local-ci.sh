@@ -9,15 +9,23 @@ HOOK_DRY_RUN_MESSAGE="would run pre-push local CI gate"
 hook_parse_execute_flag "$@"
 
 if hook_skip_requested; then
-  hook_print_skip_and_exit
+  hook_fail "skip_requested: verification did not execute"
+  exit 1
 fi
 
 if [[ "${WEBSITE_TESTING_LOCAL_CI_IN_PROGRESS:-}" == "1" ]]; then
-  hook_warn "WEBSITE_TESTING_LOCAL_CI_IN_PROGRESS=1; skipping run-local-ci.sh to avoid recursive local CI"
-  exit 0
+  hook_fail "recursive_gate: verification did not execute"
+  exit 1
 fi
 
 cd "${HOOKS_REPO_ROOT}"
+
+# Resolve only installed toolchains during verification.
+export GOTOOLCHAIN=local
+if [[ "$(go env GOVERSION)" != "go1.26.8" ]]; then
+  hook_fail "Use the reviewed Go 1.26.8 pin in .mise.toml (mise exec -- go ...); local gates never fetch a toolchain"
+  exit 1
+fi
 
 cat << 'EOF'
 website-testing pre-push local CI gate
@@ -34,10 +42,8 @@ Running:
   CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build ./cmd/smoke-go
   make lint
 
-Skip only when you have a reason:
-  LEFTHOOK=0 git push
-  WEBSITE_TESTING_SKIP_HOOKS=1 git push
-  git push --no-verify
+Full acceptance requires every configured check.
+Explicit skip and recursive execution requests refuse verification.
 EOF
 
 export WEBSITE_TESTING_LOCAL_CI_IN_PROGRESS=1
