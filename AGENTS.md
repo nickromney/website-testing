@@ -1,5 +1,9 @@
 # Agent Instructions
 
+For system ownership, action effects, verification scope or a new agent task,
+read [the operating model](docs/agent-system.md). Detailed product plans
+remain at the linked owners; historical observations retain their dates.
+
 This project uses **bd** (beads) for issue tracking. Run `bd prime` for the current workflow context.
 Install hooks with `bd hooks install` if you want `bd prime` injected automatically at session start.
 
