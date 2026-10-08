@@ -159,10 +159,15 @@ git commit --no-verify
 git push --no-verify
 ```
 
-GitHub Actions CI is now on-demand:
+The full gate runs locally on pre-push through `scripts/hooks/run-local-ci.sh` (lefthook). To run it directly:
 
 ```bash
-gh workflow run ci.yml
+uv run --locked scripts/hooks/run-local-ci.sh --execute
+```
+
+Release is still a GitHub Actions workflow:
+
+```bash
 gh workflow run release.yml
 ```
 
