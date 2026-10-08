@@ -1,9 +1,5 @@
 # Agent Instructions
 
-For system ownership, action effects, verification scope or a new agent task,
-read [the operating model](docs/agent-system.md). Detailed product plans
-remain at the linked owners; historical observations retain their dates.
-
 This project uses **bd** (beads) for issue tracking. Run `bd prime` for the current workflow context.
 Install hooks with `bd hooks install` if you want `bd prime` injected automatically at session start.
 
@@ -69,8 +65,9 @@ git pull --rebase
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 
-The source-owned `.agent/contract.json` declares existing local verification actions,
-their effects and acceptance scope, and lessons bound to exact source/test bytes.
-Run the full local gate with `lefthook run pre-push --force`; a plain manual run
-can select no files. Remote workflows publish allowed artifacts only. Local
-fixture acceptance does not establish a live cloud, device or deployment state.
+## Verify
+
+- Full local gate: `lefthook run pre-push --force` (or `uv run --locked scripts/hooks/run-local-ci.sh --execute`). A plain manual run can select no files.
+- Go tests with race detector: `make test-go`. Legacy Bash/BATS parity: `make test-bash`. Local binary: `make build`.
+- Toolchain is pinned in `.mise.toml` (Go and golangci-lint v2); `make lint` and `make vuln` do not install tools.
+- `./bin/smoke run <spec> --json` makes real network requests. The checked-in example specs target real networks and are attended probes, not an offline gate. A pass proves only the selected assertion.

@@ -206,11 +206,7 @@ The Bash helper still supports:
 
 If you are touching the Bash path, keep it working. If you are investing in new product direction, do it in `smoke`.
 
-## Agent operation and plan status
-
-For the current ownership, action-effect and evidence contracts, use [the operating model](docs/agent-system.md). Its implemented plan covers agent navigation and documentation. Feature proposals below remain proposals until their own acceptance evidence is recorded; dated observations retain their original scope.
-
-## Offline and live result acceptance
+## Offline and live checks
 
 | Boundary | Command / owner | Claim |
 | --- | --- | --- |
@@ -219,11 +215,7 @@ For the current ownership, action-effect and evidence contracts, use [the operat
 | Legacy API parity | `make test-bash`; `_test` | Promised Bash helpers against fixtures |
 | Live selected spec | `./bin/smoke run path/to/spec.yaml --json` | Each assertion against its effective target at run time |
 
-An evidence record carries spec path/digest, binary/source revision, effective
-target, timestamp and per-step result. Invalid specs and local prerequisites
-remain distinct from DNS/TLS/connectivity/assertion failures. The current JSON
-output is the implementation contract; this document does not add fields to it.
-Record extra provenance alongside output rather than invent CLI flags. Checked-in
-internet examples are attended live probes, not an offline test gate. A pass
-proves the selected assertion only and should not become a generic site-readiness
-claim. Preserve newly confirmed protocol cases in the existing runner fixtures.
+Invalid specs and local prerequisite failures are reported separately from
+DNS, TLS, connectivity and assertion failures. Checked-in internet examples are
+attended live probes, not an offline test gate. A pass proves only the selected
+assertion and is not a general site-readiness claim.
