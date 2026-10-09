@@ -4,11 +4,9 @@
 
 # Ensure Go- and Homebrew-installed tools are available when `make` runs under
 # a non-login shell. Harmless when either location is absent.
-GO_BIN := $(shell go env GOBIN)
-ifeq ($(strip $(GO_BIN)),)
+# Preserve an explicitly selected reviewed toolchain ahead of helper bins.
 GO_BIN := $(shell go env GOPATH)/bin
-endif
-export PATH := $(GO_BIN):/opt/homebrew/bin:/usr/local/bin:$(PATH)
+export PATH := $(PATH):$(GO_BIN):/opt/homebrew/bin:/usr/local/bin
 
 BINARY_NAME := smoke
 VERSION ?= dev
@@ -58,12 +56,12 @@ cover-html: test-cover ## Generate coverage.html from coverage.out
 vet: ## Run go vet
 	$(GOVET) ./...
 
-lint: ## Run golangci-lint (installs if missing)
-	@$(GO_BIN)/golangci-lint version 2>/dev/null | grep -q 'version 2\.' || (echo "Installing golangci-lint v2..." && $(GOCMD) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest)
-	$(GO_BIN)/golangci-lint run ./...
+lint: ## Run the explicitly installed golangci-lint v2; never fetch latest during verification
+	@golangci-lint version 2>/dev/null | grep -q 'version 2\.' || { echo "Missing reviewed golangci-lint v2: install an immutable version aged at least seven days" >&2; exit 1; }
+	golangci-lint run ./...
 
-vuln: ## Run govulncheck (installs if missing)
-	@which govulncheck >/dev/null || (echo "Installing govulncheck..." && $(GOCMD) install golang.org/x/vuln/cmd/govulncheck@latest)
+vuln: ## Run the explicitly installed govulncheck; never fetch latest during verification
+	@command -v govulncheck >/dev/null || { echo "Missing reviewed govulncheck: install an immutable version aged at least seven days" >&2; exit 1; }
 	govulncheck ./...
 
 fmt: ## Format Go code and tidy modules

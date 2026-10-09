@@ -2,15 +2,45 @@ package runner
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/miekg/dns"
 	"github.com/nickromney/website-testing/internal/spec"
 )
+
+func TestRunHTTPStepBodyLimit(t *testing.T) {
+	for _, size := range []int{1024*1024 - 1, 1024 * 1024, 1024*1024 + 1} {
+		t.Run(fmt.Sprintf("bytes_%d", size), func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, strings.Repeat("x", size))
+			}))
+			t.Cleanup(srv.Close)
+			runner, err := New(2 * time.Second)
+			if err != nil {
+				t.Fatal(err)
+			}
+			result := runner.RunStep(context.Background(), spec.Step{
+				Kind:    spec.KindHTTP,
+				Request: spec.Request{Method: "GET", URL: srv.URL},
+				Expect:  spec.Expect{Status: http.StatusOK, BodyAbsent: []string{"forbidden"}},
+			})
+			if size <= 1024*1024 {
+				if !result.Passed || len(result.Body) != size {
+					t.Fatalf("complete response failed: body=%d errors=%v", len(result.Body), result.Errors)
+				}
+			} else if result.Passed || len(result.Body) != 1024*1024 || len(result.Errors) != 1 || !strings.Contains(result.Errors[0], "body exceeds") {
+				t.Fatalf("oversized response reported as complete: passed=%v body=%d errors=%v", result.Passed, len(result.Body), result.Errors)
+			}
+		})
+	}
+}
 
 func TestRunHTTPStep(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

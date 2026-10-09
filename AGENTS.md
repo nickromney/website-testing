@@ -64,3 +64,10 @@ git pull --rebase
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
+
+## Verify
+
+- Full local gate: `lefthook run pre-push --force` (or `uv run --locked scripts/hooks/run-local-ci.sh --execute`). A plain manual run can select no files.
+- Go tests with race detector: `make test-go`. Legacy Bash/BATS parity: `make test-bash`. Local binary: `make build`.
+- Toolchain is pinned in `.mise.toml` (Go and golangci-lint v2); `make lint` and `make vuln` do not install tools.
+- `./bin/smoke run <spec> --json` makes real network requests. The checked-in example specs target real networks and are attended probes, not an offline gate. A pass proves only the selected assertion.

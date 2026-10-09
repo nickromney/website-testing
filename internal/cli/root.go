@@ -432,7 +432,14 @@ func humanHTTPChecks(res runner.Result) []humanCheck {
 		})
 	}
 
-	checks = append(checks, humanBodyChecks(res.Step.Expect, string(res.Body))...)
+	if len(runtimeErrs) == 0 {
+		checks = append(checks, humanBodyChecks(res.Step.Expect, string(res.Body))...)
+	} else if len(res.Step.Expect.BodyContains) > 0 || len(res.Step.Expect.BodyAbsent) > 0 {
+		checks = append(checks, humanCheck{
+			Passed: false,
+			Text:   "Body assertions not evaluated: response capture is incomplete",
+		})
+	}
 	checks = append(checks, humanHeaderChecks(res.Step.Expect, res.Headers)...)
 	checks = append(checks, failureChecks("HTTP request error: ", runtimeErrs)...)
 

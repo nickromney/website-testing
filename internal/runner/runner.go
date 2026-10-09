@@ -49,6 +49,8 @@ type Runner struct {
 	dialer  net.Dialer
 }
 
+const maxHTTPBodyBytes = 1024 * 1024
+
 func New(timeout time.Duration) (*Runner, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
@@ -107,9 +109,13 @@ func (r *Runner) runHTTPStep(ctx context.Context, step spec.Step) Result {
 	res.StatusCode = httpRes.StatusCode
 	res.Headers = httpRes.Header.Clone()
 
-	body, readErr := io.ReadAll(io.LimitReader(httpRes.Body, 1024*1024))
+	body, readErr := io.ReadAll(io.LimitReader(httpRes.Body, maxHTTPBodyBytes+1))
 	if readErr != nil {
 		res.Errors = append(res.Errors, readErr.Error())
+	}
+	if len(body) > maxHTTPBodyBytes {
+		res.Errors = append(res.Errors, fmt.Sprintf("response body exceeds %d bytes; assertions cannot inspect the complete response", maxHTTPBodyBytes))
+		body = body[:maxHTTPBodyBytes]
 	}
 	res.Body = body
 	res.Duration = time.Since(started)

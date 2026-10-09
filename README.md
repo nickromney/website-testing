@@ -159,10 +159,15 @@ git commit --no-verify
 git push --no-verify
 ```
 
-GitHub Actions CI is now on-demand:
+The full gate runs locally on pre-push through `scripts/hooks/run-local-ci.sh` (lefthook). To run it directly:
 
 ```bash
-gh workflow run ci.yml
+uv run --locked scripts/hooks/run-local-ci.sh --execute
+```
+
+Release is still a GitHub Actions workflow:
+
+```bash
 gh workflow run release.yml
 ```
 
@@ -200,3 +205,17 @@ The Bash helper still supports:
 - CSRF token substitution
 
 If you are touching the Bash path, keep it working. If you are investing in new product direction, do it in `smoke`.
+
+## Offline and live checks
+
+| Boundary | Command / owner | Claim |
+| --- | --- | --- |
+| Spec validation | `internal/spec` tests | YAML grammar and field semantics before effects |
+| Offline runner contract | `internal/runner/offline_contract_test.go`; `make test-go` | Local deterministic HTTP/DNS/TLS/TCP behavior |
+| Legacy API parity | `make test-bash`; `_test` | Promised Bash helpers against fixtures |
+| Live selected spec | `./bin/smoke run path/to/spec.yaml --json` | Each assertion against its effective target at run time |
+
+Invalid specs and local prerequisite failures are reported separately from
+DNS, TLS, connectivity and assertion failures. Checked-in internet examples are
+attended live probes, not an offline test gate. A pass proves only the selected
+assertion and is not a general site-readiness claim.
