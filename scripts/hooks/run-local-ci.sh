@@ -22,8 +22,8 @@ cd "${HOOKS_REPO_ROOT}"
 
 # Resolve only installed toolchains during verification.
 export GOTOOLCHAIN=local
-if [[ "$(go env GOVERSION)" != "go1.26.8" ]]; then
-  hook_fail "Use the reviewed Go 1.26.8 pin in .mise.toml (mise exec -- go ...); local gates never fetch a toolchain"
+if [[ "$(go env GOVERSION)" != "go1.26.9" ]]; then
+  hook_fail "Use the reviewed Go 1.26.9 pin in .mise.toml (mise exec -- go ...); local gates never fetch a toolchain"
   exit 1
 fi
 
