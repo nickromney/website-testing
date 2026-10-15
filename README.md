@@ -33,6 +33,11 @@ make build
 ./bin/smoke --help
 ```
 
+Run `make verify-dry-run`, `make verify-test`, and `make verify` to build the
+CLI and exercise its HTTP assertions against an owned localhost fixture. The
+run leaves output evidence under the temporary verify evidence directory. See
+[`skills/verify-website-testing/SKILL.md`](skills/verify-website-testing/SKILL.md).
+
 On macOS, an unsigned downloaded binary may be quarantined on first launch. If that happens, remove the quarantine xattr and retry:
 
 ```bash

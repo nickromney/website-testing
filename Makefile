@@ -76,3 +76,6 @@ hooks: ## Install lefthook git hooks
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
+
+VERIFY_SKILL := skills/verify-website-testing
+include $(VERIFY_SKILL)/verify.mk

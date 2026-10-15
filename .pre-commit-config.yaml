@@ -23,6 +23,9 @@ repos:
     hooks:
       - id: shfmt
         args: ["-i", "2", "-ci", "-sr", "-w"]
+        exclude: >-
+          (?x)^skills/verify-website-testing/
+          (?:scripts/verify-lib\.sh|tests/contract\.bats)$
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
@@ -36,12 +39,16 @@ repos:
     hooks:
       - id: beads-flush
         name: "beads: flush issues DB to JSONL"
-        entry: bash -c 'command -v bd >/dev/null 2>&1 || exit 0; command -v dolt >/dev/null 2>&1 || exit 0; bd export -o .beads/issues.jsonl >/dev/null 2>&1 || exit 0'
+        entry: >-
+          bash -c 'command -v bd >/dev/null 2>&1 || exit 0;
+          command -v dolt >/dev/null 2>&1 || exit 0;
+          bd export -o .beads/issues.jsonl >/dev/null 2>&1 || exit 0'
         language: system
         pass_filenames: false
 
       - id: gofmt
         name: gofmt
-        entry: bash -c 'command -v gofmt >/dev/null 2>&1 || exit 0; gofmt -w "$@"' --
+        entry: >-
+          bash -c 'command -v gofmt >/dev/null 2>&1 || exit 0; gofmt -w "$@"' --
         language: system
         types: [go]
